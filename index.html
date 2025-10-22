@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Heart Rate Car Controller</title>
+  <style>
+    :root{
+      --sky1:#87CEEB;
+      --sky2:#98D8C8;
+      --road:#333;
+      --lane:#fff;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box;}
+
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      height:100vh;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Game Area */
+    .game-area{
+      flex:1;
+      position:relative;
+      background: linear-gradient(to bottom, var(--sky1) 0%, var(--sky2) 100%);
+      overflow:hidden;
+    }
+
+    /* ---------- SCENERY: seamless, never “spawns” ---------- */
+    .scenery{
+      position:absolute; inset:0;
+      display:flex; width:200%; height:100%;
+      animation:sceneryScroll 24s linear infinite;
+    }
+    @keyframes sceneryScroll{
+      0%{transform:translateX(0)}
+      100%{transform:translateX(-50%)}
+    }
+    .panel{
+      position:relative; width:50%; height:100%;
+    }
+
+    /* Clouds inside each panel */
+    .cloud{position:absolute; width:90px; height:42px; border-radius:50px; background:#fff; opacity:.7;}
+    /* Trees inside each panel */
+    .tree{
+      position:absolute; width:62px; height:84px; bottom:200px;
+      background:#2ecc71; border-radius:50% 50% 0 0;
+    }
+    .tree::after{
+      content:""; position:absolute; left:50%; transform:translateX(-50%);
+      bottom:-22px; width:16px; height:22px; background:#8b4513;
+    }
+
+    /* ---------- ROAD: seamless using background-position ---------- */
+    .road{
+      position:absolute; left:0; right:0; bottom:0; height:200px;
+      background: var(--road);
+      overflow:hidden;
+    }
+    .road::before{
+      /* center dashed line */
+      content:""; position:absolute; left:0; right:0; top:50%; height:8px; transform:translateY(-50%);
+      background:
+        repeating-linear-gradient(90deg,
+          var(--lane) 0 60px,
+          transparent 60px 120px);
+      opacity:.95;
+      animation:dashScroll 1.3s linear infinite;
+    }
+    @keyframes dashScroll{
+      0%{background-position-x:0}
+      100%{background-position-x:-120px}
+    }
+
+    /* ---------- Speed lines ---------- */
+    .speed-lines{position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .25s;}
+    .speed-line{
+      position:absolute; left:0; right:0; height:2px;
+      background:linear-gradient(to right,transparent,rgba(255,255,255,.85),transparent);
+      animation:speedLine .28s linear infinite;
+    }
+    .speed-line:nth-child(1){top:22%}
+    .speed-line:nth-child(2){top:42%}
+    .speed-line:nth-child(3){top:62%}
+    .speed-line:nth-child(4){top:82%}
+    @keyframes speedLine{
+      0%{transform:translateX(100%)}
+      100%{transform:translateX(-100%)}
+    }
+
+    /* ---------- Car (your original shape, nicer wheels) ---------- */
+    .car{
+      position:absolute; bottom:50px; left:50%; transform:translateX(-50%);
+      width:80px; height:40px; z-index:10;
+      transition:bottom .3s ease, transform .3s ease, filter .2s ease;
+    }
+
+    .car-body{
+      position:relative; width:100%; height:100%;
+      background:#e74c3c; border-radius:10px;
+      box-shadow:0 5px 12px rgba(0,0,0,.35);
+    }
+    .car-body::before{
+      content:""; position:absolute; top:-15px; left:15px; width:50px; height:20px;
+      background:#c0392b; border-radius:5px 5px 0 0;
+    }
+
+    /* Upgraded wheels from the other design */
+    .wheel{
+      position:absolute; bottom:-8px; width:22px; height:22px; border-radius:50%;
+      background:#0f0f0f; z-index:2;
+      animation:wheelSpin .5s linear infinite;
+      box-shadow: inset 0 0 6px rgba(255,255,255,.06), inset 0 -1px 4px rgba(0,0,0,.65);
+    }
+    .wheel.front{ left:10px }
+    .wheel.rear { right:10px }
+
+    /* deep rim with spokes */
+    .wheel .rim{
+      position:absolute; inset:3px; border-radius:50%;
+      background:
+        radial-gradient(circle at 50% 50%, #bbb 0 2px, transparent 2px),
+        conic-gradient(from 0deg,
+          #dedede 0 12%, #676767 12% 24%,
+          #dedede 24% 36%, #676767 36% 48%,
+          #dedede 48% 60%, #676767 60% 72%,
+          #dedede 72% 84%, #676767 84% 100%);
+      filter: drop-shadow(0 0 1px rgba(0,0,0,.6));
+    }
+    @keyframes wheelSpin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
+    /* ---------- UI ---------- */
+    .control-panel{
+      background: rgba(0,0,0,.92);
+      padding:18px;
+      display:flex; gap:28px; justify-content:space-around; align-items:center;
+      box-shadow:0 -6px 22px rgba(0,0,0,.4);
+    }
+    .heart-monitor{display:flex; flex-direction:column; align-items:center; color:#fff;}
+    .heart-icon{font-size:40px; color:#e74c3c; animation:heartbeat 1s ease-in-out infinite;}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+    .heart-rate-display{font-size:36px; font-weight:700; color:#e74c3c; margin:10px 0; text-shadow:0 0 10px rgba(231,76,60,.5);}
+    .heart-rate-label{font-size:14px; color:#95a5a6;}
+
+    .slider-container{display:flex; flex-direction:column; align-items:center; gap:10px;}
+    .slider-label{color:#fff; font-size:14px;}
+    .heart-slider{width:220px; height:8px; appearance:none; background:linear-gradient(90deg,#3498db 0%,#e74c3c 100%); border-radius:6px;}
+    .heart-slider::-webkit-slider-thumb{
+      appearance:none; width:26px; height:26px; border-radius:50%; background:#fff; border:3px solid #e74c3c;
+      box-shadow:0 2px 5px rgba(0,0,0,.3); cursor:pointer;
+    }
+
+    .controls{display:flex; gap:18px; align-items:center;}
+    .control-btn{
+      width:58px; height:58px; border:0; border-radius:12px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; font-size:24px; color:#fff; background:#3b4a63;
+      box-shadow:0 4px 6px rgba(0,0,0,.3); transition:transform .15s, background .15s;
+    }
+    .control-btn:hover{transform:translateY(-2px); background:#2f3e56;}
+    .control-btn:active{transform:translateY(0);}
+
+    .speed-display{color:#fff; text-align:center;}
+    .speed-value{font-size:28px; font-weight:700; color:#3aa0ff;}
+    .speed-label{font-size:14px; color:#95a5a6;}
+
+    .instructions{
+      position:absolute; top:20px; left:50%; transform:translateX(-50%);
+      background: rgba(0,0,0,.72); color:#fff; padding:12px 24px;
+      border-radius:10px; text-align:center; z-index:100;
+    }
+
+    /* High-speed shake preserved */
+    @keyframes carShake{
+      0%,100%{transform:translateX(-50%) translateY(0)}
+      50%{transform:translateX(-50%) translateY(-2px)}
+    }
+  </style>
+</head>
+<body>
+  <div class="game-area">
+    <div class="instructions">
+      <p>Adjust Heart Rate to Control Speed | Arrow Keys to steer</p>
+    </div>
+
+    <!-- Seamless scenery (two identical panels) -->
+    <div class="scenery" id="scenery">
+      <div class="panel">
+        <div class="cloud" style="left:120px; top:34px;"></div>
+        <div class="cloud" style="left:420px; top:62px;"></div>
+        <div class="cloud" style="left:760px; top:44px;"></div>
+        <div class="cloud" style="left:1060px; top:70px;"></div>
+        <div class="tree" style="left:200px;"></div>
+        <div class="tree" style="left:520px;"></div>
+        <div class="tree" style="left:840px;"></div>
+      </div>
+      <!-- exact clone for seamless wrap -->
+      <div class="panel">
+        <div class="cloud" style="left:120px; top:34px;"></div>
+        <div class="cloud" style="left:420px; top:62px;"></div>
+        <div class="cloud" style="left:760px; top:44px;"></div>
+        <div class="cloud" style="left:1060px; top:70px;"></div>
+        <div class="tree" style="left:200px;"></div>
+        <div class="tree" style="left:520px;"></div>
+        <div class="tree" style="left:840px;"></div>
+      </div>
+    </div>
+
+    <!-- Speed lines -->
+    <div class="speed-lines" id="speedLines">
+      <div class="speed-line"></div>
+      <div class="speed-line"></div>
+      <div class="speed-line"></div>
+      <div class="speed-line"></div>
+    </div>
+
+    <!-- Seamless road -->
+    <div class="road" id="road"></div>
+
+    <!-- Car -->
+    <div class="car" id="car">
+      <div class="car-body"></div>
+      <div class="wheel front"><div class="rim"></div></div>
+      <div class="wheel rear"><div class="rim"></div></div>
+    </div>
+  </div>
+
+  <div class="control-panel">
+    <div class="heart-monitor">
+      <div class="heart-icon">❤️</div>
+      <div class="heart-rate-display" id="heartRateDisplay">60</div>
+      <div class="heart-rate-label">BPM</div>
+    </div>
+
+    <div class="slider-container">
+      <label class="slider-label">Adjust Heart Rate</label>
+      <input type="range" class="heart-slider" id="heartSlider" min="40" max="180" value="60">
+    </div>
+
+    <div class="controls">
+      <button class="control-btn" onclick="moveCar('up')">↑</button>
+      <div>
+        <button class="control-btn" onclick="moveCar('left')">←</button>
+        <button class="control-btn" onclick="moveCar('right')">→</button>
+      </div>
+      <button class="control-btn" onclick="moveCar('down')">↓</button>
+    </div>
+
+    <div class="speed-display">
+      <div class="speed-value" id="speedDisplay">0</div>
+      <div class="speed-label">MPH</div>
+    </div>
+  </div>
+
+  <script>
+    let heartRate = 60;
+    let speed = 0;
+
+    const car = document.getElementById('car');
+    const heartSlider = document.getElementById('heartSlider');
+    const heartRateDisplay = document.getElementById('heartRateDisplay');
+    const speedDisplay = document.getElementById('speedDisplay');
+    const road = document.getElementById('road');
+    const scenery = document.getElementById('scenery');
+    const speedLines = document.getElementById('speedLines');
+    const wheels = document.querySelectorAll('.wheel');
+    const heartIcon = document.querySelector('.heart-icon');
+
+    heartSlider.addEventListener('input', (e) => {
+      heartRate = parseInt(e.target.value, 10);
+      updateHeartRate();
+    });
+
+    function updateHeartRate(){
+      heartRateDisplay.textContent = heartRate;
+
+      // map 40..180 bpm to 0..140 mph
+      speed = Math.max(0, Math.round(((heartRate - 40) / 140) * 140));
+      speedDisplay.textContent = speed;
+
+      // animation pacing factor (lower is faster)
+      const animationSpeed = speed > 0 ? (10 / (speed / 20 + 1)) : 10;
+
+      /* scenery speed (seamless since it's two panels wide) */
+      scenery.style.animationDuration = speed > 0 ? (animationSpeed * 3) + 's' : '0s';
+      scenery.style.animationPlayState = speed > 0 ? 'running' : 'paused';
+
+      /* road dashes move via background-position animation speed */
+      road.style.setProperty('--dashSpeed', animationSpeed);
+      road.style.animationPlayState = speed > 0 ? 'running' : 'paused';
+
+      /* wheel spin */
+      wheels.forEach(w => {
+        if (speed > 0){
+          w.style.animationDuration = (0.5 / (speed / 60 + 0.1)) + 's';
+          w.style.animationPlayState = 'running';
+        } else {
+          w.style.animationPlayState = 'paused';
+        }
+      });
+
+      /* heartbeat tempo */
+      heartIcon.style.animationDuration = (60 / Math.max(heartRate, 1)) + 's';
+
+      /* speed lines intensity */
+      speedLines.style.opacity = speed > 80 ? (speed - 80) / 60 : 0;
+
+      /* shake when really quick */
+      if (speed > 110){
+        car.style.animation = 'carShake .1s infinite';
+      } else {
+        car.style.animation = 'none';
+      }
+    }
+
+    function moveCar(direction){
+      const currentLeft = parseInt((car.style.left || '50').replace('%',''), 10);
+      const currentBottom = parseInt((car.style.bottom || '50').replace('px',''), 10);
+
+      switch(direction){
+        case 'up':    car.style.bottom = Math.min(150, currentBottom + 20) + 'px'; break;
+        case 'down':  car.style.bottom = Math.max(30,  currentBottom - 20) + 'px'; break;
+        case 'left':  car.style.left   = Math.max(20,  currentLeft - 5)  + '%';    break;
+        case 'right': car.style.left   = Math.min(80,  currentLeft + 5)  + '%';    break;
+      }
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowUp') moveCar('up');
+      else if (e.key === 'ArrowDown') moveCar('down');
+      else if (e.key === 'ArrowLeft') moveCar('left');
+      else if (e.key === 'ArrowRight') moveCar('right');
+    });
+
+    updateHeartRate();
+  </script>
+</body>
+</html>
