@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Heart Rate Car Controller</title>
+  <title>Heart Rate Car Controller — Night & Smoke</title>
   <style>
     :root{
       --sky1:#87CEEB;
       --sky2:#98D8C8;
       --road:#333;
       --lane:#fff;
+
+      /* Night mode controls */
+      --sceneDarken: 0;           /* 0 (day) → 0.35 (night) */
+      --beamOpacity: 0;           /* 0 (off) → 0.9 (on) */
     }
 
     *{margin:0;padding:0;box-sizing:border-box;}
@@ -29,32 +33,32 @@
       position:relative;
       background: linear-gradient(to bottom, var(--sky1) 0%, var(--sky2) 100%);
       overflow:hidden;
+      filter: brightness(calc(1 - var(--sceneDarken)));
+      transition: filter .3s ease;
     }
 
-    /* ---------- SCENERY: seamless, never “spawns” ---------- */
-    .scenery{
+    /* ---------- SCENERY: seamless, two identical panels ---------- */
+    .layer{
       position:absolute; inset:0;
       display:flex; width:200%; height:100%;
-      animation:sceneryScroll 24s linear infinite;
+      pointer-events:none;
     }
-    @keyframes sceneryScroll{
-      0%{transform:translateX(0)}
-      100%{transform:translateX(-50%)}
-    }
-    .panel{
-      position:relative; width:50%; height:100%;
-    }
+    .layer .panel{ position:relative; width:50%; height:100%; }
 
-    /* Clouds inside each panel */
-    .cloud{position:absolute; width:90px; height:42px; border-radius:50px; background:#fff; opacity:.7;}
-    /* Trees inside each panel */
+    .clouds{ animation:cloudScroll 45s linear infinite; opacity:.7; }
+    @keyframes cloudScroll{ 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .cloud{position:absolute; width:100px; height:46px; border-radius:50px; background:#fff; filter:blur(.4px);}
+
+    .trees{ animation:treeScroll 18s linear infinite; }
+    @keyframes treeScroll{ 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
     .tree{
       position:absolute; width:62px; height:84px; bottom:200px;
       background:#2ecc71; border-radius:50% 50% 0 0;
+      box-shadow:0 8px 14px rgba(0,0,0,.08);
     }
     .tree::after{
       content:""; position:absolute; left:50%; transform:translateX(-50%);
-      bottom:-22px; width:16px; height:22px; background:#8b4513;
+      bottom:-22px; width:16px; height:22px; background:#8b4513; border-radius:3px;
     }
 
     /* ---------- ROAD: seamless using background-position ---------- */
@@ -66,12 +70,9 @@
     .road::before{
       /* center dashed line */
       content:""; position:absolute; left:0; right:0; top:50%; height:8px; transform:translateY(-50%);
-      background:
-        repeating-linear-gradient(90deg,
-          var(--lane) 0 60px,
-          transparent 60px 120px);
-      opacity:.95;
+      background: repeating-linear-gradient(90deg, var(--lane) 0 60px, transparent 60px 120px);
       animation:dashScroll 1.3s linear infinite;
+      opacity:.95;
     }
     @keyframes dashScroll{
       0%{background-position-x:0}
@@ -83,7 +84,7 @@
     .speed-line{
       position:absolute; left:0; right:0; height:2px;
       background:linear-gradient(to right,transparent,rgba(255,255,255,.85),transparent);
-      animation:speedLine .28s linear infinite;
+      animation:speedLine .25s linear infinite;
     }
     .speed-line:nth-child(1){top:22%}
     .speed-line:nth-child(2){top:42%}
@@ -94,24 +95,50 @@
       100%{transform:translateX(-100%)}
     }
 
-    /* ---------- Car (your original shape, nicer wheels) ---------- */
+    /* ---------- Car (your original body) + upgraded wheels ---------- */
     .car{
       position:absolute; bottom:50px; left:50%; transform:translateX(-50%);
       width:80px; height:40px; z-index:10;
-      transition:bottom .3s ease, transform .3s ease, filter .2s ease;
+      transition:bottom .3s ease, transform .3s ease;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,.35));
     }
-
     .car-body{
       position:relative; width:100%; height:100%;
       background:#e74c3c; border-radius:10px;
       box-shadow:0 5px 12px rgba(0,0,0,.35);
     }
     .car-body::before{
+      /* roof bubble */
       content:""; position:absolute; top:-15px; left:15px; width:50px; height:20px;
       background:#c0392b; border-radius:5px 5px 0 0;
     }
 
-    /* Upgraded wheels from the other design */
+    /* RIGHT-SIDE headlights beam (front is RIGHT) */
+    .beams{
+      position:absolute; right: -50px; top:-3px;
+      width:56px; height:40px; pointer-events:none;
+      background: radial-gradient(ellipse at right,
+                rgba(210,235,255,var(--beamOpacity)) 0%,
+                rgba(210,235,255,0) 75%);
+      transform: translateX(20px) scaleX(2.0);
+    }
+
+    /* Exhaust emitter at REAR (left side) */
+    .exhaust{
+      position:absolute; left:-6px; bottom:4px; width:0; height:0; overflow:visible; pointer-events:none;
+    }
+    .puff{
+      position:absolute; width:10px; height:6px; border-radius:50%;
+      background: radial-gradient(circle at 40% 50%, rgba(200,200,200,.9), rgba(200,200,200,0));
+      opacity:.85; filter: blur(.3px);
+      animation: puffMove .6s ease-out forwards;
+    }
+    @keyframes puffMove{
+      0%{ transform: translateX(0) translateY(0) scale(.8); opacity:.8; }
+      100%{ transform: translateX(-42px) translateY(-6px) scale(1.6); opacity:0; }
+    }
+
+    /* Upgraded wheels */
     .wheel{
       position:absolute; bottom:-8px; width:22px; height:22px; border-radius:50%;
       background:#0f0f0f; z-index:2;
@@ -120,8 +147,6 @@
     }
     .wheel.front{ left:10px }
     .wheel.rear { right:10px }
-
-    /* deep rim with spokes */
     .wheel .rim{
       position:absolute; inset:3px; border-radius:50%;
       background:
@@ -139,7 +164,7 @@
     .control-panel{
       background: rgba(0,0,0,.92);
       padding:18px;
-      display:flex; gap:28px; justify-content:space-around; align-items:center;
+      display:flex; gap:20px; justify-content:space-around; align-items:center;
       box-shadow:0 -6px 22px rgba(0,0,0,.4);
     }
     .heart-monitor{display:flex; flex-direction:column; align-items:center; color:#fff;}
@@ -156,22 +181,26 @@
       box-shadow:0 2px 5px rgba(0,0,0,.3); cursor:pointer;
     }
 
-    .controls{display:flex; gap:18px; align-items:center;}
+    .controls{display:flex; gap:14px; align-items:center;}
     .control-btn{
-      width:58px; height:58px; border:0; border-radius:12px; cursor:pointer;
-      display:flex; align-items:center; justify-content:center; font-size:24px; color:#fff; background:#3b4a63;
+      width:54px; height:54px; border:0; border-radius:12px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; font-size:22px; color:#fff; background:#3b4a63;
       box-shadow:0 4px 6px rgba(0,0,0,.3); transition:transform .15s, background .15s;
     }
     .control-btn:hover{transform:translateY(-2px); background:#2f3e56;}
     .control-btn:active{transform:translateY(0);}
+
+    .toggle{
+      padding:10px 14px; border-radius:10px; border:0; cursor:pointer; color:#111; background:#e6f0ff; font-weight:700;
+    }
 
     .speed-display{color:#fff; text-align:center;}
     .speed-value{font-size:28px; font-weight:700; color:#3aa0ff;}
     .speed-label{font-size:14px; color:#95a5a6;}
 
     .instructions{
-      position:absolute; top:20px; left:50%; transform:translateX(-50%);
-      background: rgba(0,0,0,.72); color:#fff; padding:12px 24px;
+      position:absolute; top:16px; left:50%; transform:translateX(-50%);
+      background: rgba(0,0,0,.72); color:#fff; padding:10px 18px;
       border-radius:10px; text-align:center; z-index:100;
     }
 
@@ -185,46 +214,52 @@
 <body>
   <div class="game-area">
     <div class="instructions">
-      <p>Adjust Heart Rate to Control Speed | Arrow Keys to steer</p>
+      <p> Adjust Heart Rate | Arrow Keys steer | Press **N** or click Night Mode</p>
     </div>
 
-    <!-- Seamless scenery (two identical panels) -->
-    <div class="scenery" id="scenery">
+    <!-- Parallax layers -->
+    <div class="layer clouds">
       <div class="panel">
-        <div class="cloud" style="left:120px; top:34px;"></div>
-        <div class="cloud" style="left:420px; top:62px;"></div>
-        <div class="cloud" style="left:760px; top:44px;"></div>
-        <div class="cloud" style="left:1060px; top:70px;"></div>
-        <div class="tree" style="left:200px;"></div>
-        <div class="tree" style="left:520px;"></div>
-        <div class="tree" style="left:840px;"></div>
+        <div class="cloud" style="left:120px; top:44px;"></div>
+        <div class="cloud" style="left:440px; top:62px;"></div>
+        <div class="cloud" style="left:780px; top:40px;"></div>
       </div>
-      <!-- exact clone for seamless wrap -->
       <div class="panel">
-        <div class="cloud" style="left:120px; top:34px;"></div>
-        <div class="cloud" style="left:420px; top:62px;"></div>
-        <div class="cloud" style="left:760px; top:44px;"></div>
-        <div class="cloud" style="left:1060px; top:70px;"></div>
-        <div class="tree" style="left:200px;"></div>
+        <div class="cloud" style="left:120px; top:44px;"></div>
+        <div class="cloud" style="left:440px; top:62px;"></div>
+        <div class="cloud" style="left:780px; top:40px;"></div>
+      </div>
+    </div>
+
+    <div class="layer trees">
+      <div class="panel">
+        <div class="tree" style="left:220px;"></div>
         <div class="tree" style="left:520px;"></div>
-        <div class="tree" style="left:840px;"></div>
+        <div class="tree" style="left:820px;"></div>
+      </div>
+      <div class="panel">
+        <div class="tree" style="left:220px;"></div>
+        <div class="tree" style="left:520px;"></div>
+        <div class="tree" style="left:820px;"></div>
       </div>
     </div>
 
     <!-- Speed lines -->
     <div class="speed-lines" id="speedLines">
-      <div class="speed-line"></div>
-      <div class="speed-line"></div>
-      <div class="speed-line"></div>
-      <div class="speed-line"></div>
+      <div class="speed-line"></div><div class="speed-line"></div><div class="speed-line"></div><div class="speed-line"></div>
     </div>
 
     <!-- Seamless road -->
-    <div class="road" id="road"></div>
+    <div class="road"></div>
 
     <!-- Car -->
     <div class="car" id="car">
-      <div class="car-body"></div>
+      <div class="car-body">
+        <!-- right-side forward beams -->
+        <div class="beams"></div>
+        <!-- rear exhaust -->
+        <div class="exhaust" id="exhaust"></div>
+      </div>
       <div class="wheel front"><div class="rim"></div></div>
       <div class="wheel rear"><div class="rim"></div></div>
     </div>
@@ -251,6 +286,8 @@
       <button class="control-btn" onclick="moveCar('down')">↓</button>
     </div>
 
+    <button class="toggle" id="nightBtn">Night Mode</button>
+
     <div class="speed-display">
       <div class="speed-value" id="speedDisplay">0</div>
       <div class="speed-label">MPH</div>
@@ -265,11 +302,25 @@
     const heartSlider = document.getElementById('heartSlider');
     const heartRateDisplay = document.getElementById('heartRateDisplay');
     const speedDisplay = document.getElementById('speedDisplay');
-    const road = document.getElementById('road');
-    const scenery = document.getElementById('scenery');
     const speedLines = document.getElementById('speedLines');
     const wheels = document.querySelectorAll('.wheel');
     const heartIcon = document.querySelector('.heart-icon');
+    const nightBtn = document.getElementById('nightBtn');
+    const exhaust = document.getElementById('exhaust');
+
+    let night = false;
+
+    /* Night mode toggles headlight beams + darkens scene */
+    function toggleNight(){
+      night = !night;
+      document.documentElement.style.setProperty('--beamOpacity', night ? 0.9 : 0);
+      document.documentElement.style.setProperty('--sceneDarken', night ? 0.35 : 0);
+      nightBtn.textContent = night ? 'Day Mode' : 'Night Mode';
+    }
+    nightBtn.addEventListener('click', toggleNight);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'n' || e.key === 'N') toggleNight();
+    });
 
     heartSlider.addEventListener('input', (e) => {
       heartRate = parseInt(e.target.value, 10);
@@ -279,22 +330,20 @@
     function updateHeartRate(){
       heartRateDisplay.textContent = heartRate;
 
-      // map 40..180 bpm to 0..140 mph
+      // Map 40..180 BPM to 0..140 MPH
       speed = Math.max(0, Math.round(((heartRate - 40) / 140) * 140));
       speedDisplay.textContent = speed;
 
-      // animation pacing factor (lower is faster)
+      // Animation pacing factor (lower is faster)
       const animationSpeed = speed > 0 ? (10 / (speed / 20 + 1)) : 10;
 
-      /* scenery speed (seamless since it's two panels wide) */
-      scenery.style.animationDuration = speed > 0 ? (animationSpeed * 3) + 's' : '0s';
-      scenery.style.animationPlayState = speed > 0 ? 'running' : 'paused';
+      /* Pause/Run parallax layers by speed (CSS handles the motion) */
+      const play = speed > 0 ? 'running' : 'paused';
+      document.querySelector('.clouds').style.animationPlayState = play;
+      document.querySelector('.trees').style.animationPlayState = play;
+      document.querySelector('.road').style.animationPlayState   = play;
 
-      /* road dashes move via background-position animation speed */
-      road.style.setProperty('--dashSpeed', animationSpeed);
-      road.style.animationPlayState = speed > 0 ? 'running' : 'paused';
-
-      /* wheel spin */
+      /* Wheel spin rate */
       wheels.forEach(w => {
         if (speed > 0){
           w.style.animationDuration = (0.5 / (speed / 60 + 0.1)) + 's';
@@ -304,17 +353,34 @@
         }
       });
 
-      /* heartbeat tempo */
+      /* Heartbeat tempo */
       heartIcon.style.animationDuration = (60 / Math.max(heartRate, 1)) + 's';
 
-      /* speed lines intensity */
+      /* Speed lines intensity */
       speedLines.style.opacity = speed > 80 ? (speed - 80) / 60 : 0;
 
-      /* shake when really quick */
+      /* Exhaust smoke when > 70 mph */
+      if (speed > 70) spawnPuff();
+
+      /* Car vibration at high speed */
       if (speed > 110){
         car.style.animation = 'carShake .1s infinite';
       } else {
         car.style.animation = 'none';
+      }
+    }
+
+    /* Rear exhaust particles */
+    function spawnPuff(){
+      // 1 puff (2 when very fast)
+      const count = speed > 120 ? 2 : 1;
+      for (let i=0; i<count; i++){
+        const p = document.createElement('div');
+        p.className = 'puff';
+        p.style.left = (Math.random()*6 - 3) + 'px';
+        p.style.bottom = (Math.random()*4 - 2) + 'px';
+        exhaust.appendChild(p);
+        setTimeout(() => p.remove(), 600);
       }
     }
 
@@ -330,13 +396,15 @@
       }
     }
 
-    document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowUp') moveCar('up');
-      else if (e.key === 'ArrowDown') moveCar('down');
-      else if (e.key === 'ArrowLeft') moveCar('left');
-      else if (e.key === 'ArrowRight') moveCar('right');
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp')    moveCar('up');
+      if (e.key === 'ArrowDown')  moveCar('down');
+      if (e.key === 'ArrowLeft')  moveCar('left');
+      if (e.key === 'ArrowRight') moveCar('right');
     });
 
+    // Initialize
     updateHeartRate();
   </script>
 </body>
