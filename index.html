@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Heart Rate Car Controller — Night & Smoke</title>
+  <title>Heart Rate Car Controller — Random Trees</title>
   <style>
     :root{
       --sky1:#87CEEB;
@@ -48,40 +48,92 @@
     }
     .layer .panel{ position:relative; width:50%; height:100%; }
 
-    .clouds{ animation:cloudScroll 45s linear infinite; opacity:.7; }
+    /* ===== Clouds (detailed) ===== */
+    .clouds{ animation:cloudScroll 45s linear infinite; opacity:.92; }
     @keyframes cloudScroll{ 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-    .cloud{position:absolute; width:100px; height:46px; border-radius:50px; background:#fff; filter:blur(.4px);}
+    .cloud{
+      position:absolute;
+      --cw: 120px; --ch: 54px;
+      width: var(--cw); height: var(--ch);
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.08));
+      animation: cloudFloat 6.5s ease-in-out infinite, cloudMorph 9s ease-in-out infinite;
+      transform-origin: 50% 60%;
+    }
+    .cloud::before{
+      content:""; position:absolute; inset:0; border-radius:40px;
+      background:
+        radial-gradient(120% 120% at 50% 60%, rgba(255,255,255,.65) 0%, rgba(255,255,255,0) 60%),
+        radial-gradient(60% 70% at 45% 55%, #ffffff 0 55%, rgba(255,255,255,.0) 56%),
+        radial-gradient(42% 48% at 28% 62%, #ffffff 0 60%, rgba(255,255,255,0) 61%),
+        radial-gradient(45% 50% at 70% 50%, #ffffff 0 60%, rgba(255,255,255,0) 61%),
+        radial-gradient(40% 40% at 52% 32%, #ffffff 0 60%, rgba(255,255,255,0) 61%);
+      mask: radial-gradient(120% 120% at 50% 60%, #000 0 60%, transparent 61%);
+    }
+    .cloud::after{
+      content:""; position:absolute; inset:0;
+      background: radial-gradient(120% 100% at 50% 100%, rgba(0,0,0,.08), rgba(0,0,0,0) 60%);
+      pointer-events:none;
+    }
+    @keyframes cloudFloat{ 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-4px) } }
+    @keyframes cloudMorph{ 0%,100%{ border-radius: 40px } 50%{ border-radius: 46px } }
 
+    /* ===== Trees (detailed) ===== */
     .trees{ animation:treeScroll 18s linear infinite; }
     @keyframes treeScroll{ 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
     .tree{
-      position:absolute; width:62px; height:84px; bottom:200px;
-      background:#2ecc71; border-radius:50% 50% 0 0;
-      box-shadow:0 8px 14px rgba(0,0,0,.08);
+      position:absolute; bottom:200px;
+      --ts: 1;
+      width: calc(70px * var(--ts));
+      height: calc(110px * var(--ts));
+      animation: treeSway 3.8s ease-in-out infinite;
+      transform-origin: 50% 100%;
+    }
+    .tree::before{
+      content:""; position:absolute; left:50%; transform:translateX(-50%);
+      bottom: 24px; width: 100%; height: 86%;
+      border-radius: 50% 50% 40% 40%;
+      background:
+        radial-gradient(120% 100% at 30% 30%, rgba(255,255,255,.12), rgba(255,255,255,0) 55%),
+        radial-gradient(70% 70% at 55% 35%, #2fcf6e 0 60%, rgba(0,0,0,0) 61%),
+        radial-gradient(70% 70% at 28% 56%, #2dbf66 0 60%, rgba(0,0,0,0) 61%),
+        radial-gradient(70% 70% at 72% 56%, #30b861 0 60%, rgba(0,0,0,0) 61%),
+        radial-gradient(85% 80% at 50% 58%, #29a85a 0 70%, rgba(0,0,0,0) 71%);
+      filter: drop-shadow(0 10px 12px rgba(0,0,0,.12));
     }
     .tree::after{
       content:""; position:absolute; left:50%; transform:translateX(-50%);
-      bottom:-22px; width:16px; height:22px; background:#8b4513; border-radius:3px;
+      bottom:0; width: calc(16px * var(--ts)); height: calc(28px * var(--ts));
+      border-radius: 4px;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.18), rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,.18)),
+        repeating-linear-gradient(180deg, rgba(255,255,255,.06) 0 2px, rgba(0,0,0,0) 2px 6px),
+        #8b6239;
+      box-shadow: 0 2px 0 rgba(0,0,0,.15);
     }
+    .tree > i{
+      position:absolute; content:""; display:block;
+      left:50%; bottom:-8px; transform:translateX(-50%);
+      width: calc(64px * var(--ts)); height: 10px; border-radius:50%;
+      background: radial-gradient(closest-side, rgba(0,0,0,.18), rgba(0,0,0,0));
+      pointer-events:none;
+    }
+    @keyframes treeSway{ 0%,100%{ transform: rotate(-1deg) } 50%{ transform: rotate(1.6deg) } }
 
-    /* ---------- ROAD: seamless using background-position ---------- */
+    /* ---------- ROAD ---------- */
     .road{
       position:absolute; left:0; right:0; bottom:0; height:200px;
       background: var(--road);
       overflow:hidden;
-      animation-play-state: running; /* gets paused by JS when speed=0 */
+      animation-play-state: running;
     }
     .road::before{
-      /* center dashed line */
       content:""; position:absolute; left:0; right:0; top:50%; height:8px; transform:translateY(-50%);
       background: repeating-linear-gradient(90deg, var(--lane) 0 60px, transparent 60px 120px);
       animation:dashScroll var(--dashDur) linear infinite;
       opacity:.95;
     }
-    @keyframes dashScroll{
-      0%{background-position-x:0}
-      100%{background-position-x:-120px}
-    }
+    @keyframes dashScroll{ 0%{background-position-x:0} 100%{background-position-x:-120px} }
 
     /* ---------- Speed lines ---------- */
     .speed-lines{position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .25s;}
@@ -94,12 +146,9 @@
     .speed-line:nth-child(2){top:42%}
     .speed-line:nth-child(3){top:62%}
     .speed-line:nth-child(4){top:82%}
-    @keyframes speedLine{
-      0%{transform:translateX(100%)}
-      100%{transform:translateX(-100%)}
-    }
+    @keyframes speedLine{ 0%{transform:translateX(100%)} 100%{transform:translateX(-100%)} }
 
-    /* ---------- Car (your original body) + upgraded wheels ---------- */
+    /* ---------- Car (unchanged styling) ---------- */
     .car{
       position:absolute; bottom:50px; left:50%; transform:translateX(-50%);
       width:80px; height:40px; z-index:10;
@@ -112,12 +161,9 @@
       box-shadow:0 5px 12px rgba(0,0,0,.35);
     }
     .car-body::before{
-      /* roof bubble */
       content:""; position:absolute; top:-15px; left:15px; width:50px; height:20px;
       background:#c0392b; border-radius:5px 5px 0 0;
     }
-
-    /* RIGHT-SIDE headlights beam (front is RIGHT) */
     .beams{
       position:absolute; right: -50px; top:-3px;
       width:56px; height:40px; pointer-events:none;
@@ -126,23 +172,17 @@
                 rgba(210,235,255,0) 75%);
       transform: translateX(20px) scaleX(2.0);
     }
-
-    /* Exhaust emitter at REAR (left side) */
-    .exhaust{
-      position:absolute; left:-6px; bottom:4px; width:0; height:0; overflow:visible; pointer-events:none;
-    }
+    .exhaust{ position:absolute; left:-6px; bottom:4px; width:0; height:0; overflow:visible; pointer-events:none; }
     .puff{
       position:absolute; width:10px; height:6px; border-radius:50%;
       background: radial-gradient(circle at 40% 50%, rgba(200,200,200,.9), rgba(200,200,200,0));
-      opacity:.85; filter: blur(.3px);
-      animation: puffMove .6s ease-out forwards;
+      opacity:.85; filter: blur(.3px); animation: puffMove .6s ease-out forwards;
     }
     @keyframes puffMove{
       0%{ transform: translateX(0) translateY(0) scale(.8); opacity:.8; }
       100%{ transform: translateX(-42px) translateY(-6px) scale(1.6); opacity:0; }
     }
 
-    /* Upgraded wheels */
     .wheel{
       position:absolute; bottom:-8px; width:22px; height:22px; border-radius:50%;
       background:#0f0f0f; z-index:2;
@@ -218,34 +258,27 @@
 <body>
   <div class="game-area">
     <div class="instructions">
-      <p> Adjust Heart Rate | Arrow Keys steer | Press **N** or click Night Mode</p>
+      <p> Adjust Heart Rate | Arrow Keys steer | Press <b>N</b> or click Night Mode</p>
     </div>
 
     <!-- Parallax layers -->
     <div class="layer clouds">
       <div class="panel">
         <div class="cloud" style="left:120px; top:44px;"></div>
-        <div class="cloud" style="left:440px; top:62px;"></div>
-        <div class="cloud" style="left:780px; top:40px;"></div>
+        <div class="cloud" style="--cw:140px; --ch:60px; left:440px; top:62px;"></div>
+        <div class="cloud" style="--cw:130px; --ch:56px; left:780px; top:40px;"></div>
       </div>
       <div class="panel">
         <div class="cloud" style="left:120px; top:44px;"></div>
-        <div class="cloud" style="left:440px; top:62px;"></div>
-        <div class="cloud" style="left:780px; top:40px;"></div>
+        <div class="cloud" style="--cw:140px; --ch:60px; left:440px; top:62px;"></div>
+        <div class="cloud" style="--cw:130px; --ch:56px; left:780px; top:40px;"></div>
       </div>
     </div>
 
-    <div class="layer trees">
-      <div class="panel">
-        <div class="tree" style="left:220px;"></div>
-        <div class="tree" style="left:520px;"></div>
-        <div class="tree" style="left:820px;"></div>
-      </div>
-      <div class="panel">
-        <div class="tree" style="left:220px;"></div>
-        <div class="tree" style="left:520px;"></div>
-        <div class="tree" style="left:820px;"></div>
-      </div>
+    <!-- Trees layer (panels start EMPTY; JS will fill with random trees) -->
+    <div class="layer trees" id="treesLayer">
+      <div class="panel" id="treesA"></div>
+      <div class="panel" id="treesB"></div>
     </div>
 
     <!-- Speed lines -->
@@ -253,15 +286,13 @@
       <div class="speed-line"></div><div class="speed-line"></div><div class="speed-line"></div><div class="speed-line"></div>
     </div>
 
-    <!-- Seamless road -->
+    <!-- Road -->
     <div class="road"></div>
 
     <!-- Car -->
     <div class="car" id="car">
       <div class="car-body">
-        <!-- right-side forward beams -->
         <div class="beams"></div>
-        <!-- rear exhaust -->
         <div class="exhaust" id="exhaust"></div>
       </div>
       <div class="wheel front"><div class="rim"></div></div>
@@ -312,14 +343,17 @@
     const nightBtn = document.getElementById('nightBtn');
     const exhaust = document.getElementById('exhaust');
 
-    // NEW: references to layers/road so we can adjust durations
+    // layers we scale by speed
     const clouds = document.querySelector('.clouds');
-    const trees  = document.querySelector('.trees');
+    const treesLayer = document.getElementById('treesLayer');
     const road   = document.querySelector('.road');
+
+    // tree panels to populate
+    const treesA = document.getElementById('treesA');
+    const treesB = document.getElementById('treesB');
 
     let night = false;
 
-    /* Night mode toggles headlight beams + darkens scene */
     function toggleNight(){
       night = !night;
       document.documentElement.style.setProperty('--beamOpacity', night ? 0.9 : 0);
@@ -329,6 +363,52 @@
     nightBtn.addEventListener('click', toggleNight);
     document.addEventListener('keydown', e => {
       if (e.key === 'n' || e.key === 'N') toggleNight();
+    });
+
+    /* ----- RANDOM TREE GENERATOR ----- */
+    function randomRange(min, max){ return Math.random() * (max - min) + min; }
+
+    function buildRandomTrees(panel, panelWidth){
+      panel.innerHTML = '';
+      // number of trees per panel: random 5..9 (feel free to tweak)
+      const count = Math.floor(randomRange(5, 10));
+
+      // generate candidate x positions then sort so they don't overlap weirdly
+      const xs = [];
+      for (let i=0; i<count; i++){
+        // keep them inside the panel: add margins so trunks don't get cut at edges
+        xs.push(randomRange(40, panelWidth - 100));
+      }
+      xs.sort((a,b)=>a-b);
+
+      for (let i=0; i<count; i++){
+        const t = document.createElement('div');
+        t.className = 'tree';
+        const scale = randomRange(0.85, 1.25);          // varied heights
+        const jitterY = randomRange(-6, 6);             // slight vertical variety
+        const x = xs[i] + randomRange(-12, 12);         // small x jitter per bucket
+        t.style.setProperty('--ts', scale.toFixed(2));
+        t.style.left = x + 'px';
+        t.style.bottom = (200 + jitterY) + 'px';
+        // ground shadow child
+        const shadow = document.createElement('i');
+        t.appendChild(shadow);
+        panel.appendChild(t);
+      }
+    }
+
+    function generateTreePanels(){
+      // Each panel is 50% width of the layer; layer spans 200% of viewport width,
+      // but each panel visually matches the viewport width. Use current viewport width.
+      const panelWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+      buildRandomTrees(treesA, panelWidth);
+      // For seamless tiling, clone A into B
+      treesB.innerHTML = treesA.innerHTML;
+    }
+
+    window.addEventListener('resize', () => {
+      // Rebuild trees on resize so spacing stays nice
+      generateTreePanels();
     });
 
     heartSlider.addEventListener('input', (e) => {
@@ -343,25 +423,23 @@
       speed = Math.max(0, Math.round(((heartRate - 40) / 140) * 140));
       speedDisplay.textContent = speed;
 
-      // ---- NEW: scale parallax and dashes by speed ----
-      // factor grows with speed (1 at rest, higher when faster)
-      const factor = (speed / 20 + 1);               // ~1..8+
-      // Prevent absurdly fast loops by clamping minimum duration
-      const cloudsDur = Math.max(8, 45 / factor);    // seconds
-      const treesDur  = Math.max(4, 18 / factor);    // seconds
+      // Scale parallax and dashes by speed
+      const factor = (speed / 20 + 1);                // ~1..8+
+      const cloudsDur = Math.max(8, 45 / factor);     // seconds
+      const treesDur  = Math.max(4, 18 / factor);     // seconds
       const dashDur   = Math.max(0.35, 1.3 / (speed/60 + 0.4)); // seconds
 
       clouds.style.animationDuration = cloudsDur + 's';
-      trees .style.animationDuration = treesDur  + 's';
+      treesLayer.style.animationDuration = treesDur  + 's';
       document.documentElement.style.setProperty('--dashDur', dashDur + 's');
 
-      /* Pause/Run parallax layers by speed (CSS handles the motion) */
+      // Pause/Run by speed
       const play = speed > 0 ? 'running' : 'paused';
-      clouds.style.animationPlayState = play;
-      trees .style.animationPlayState = play;
-      road  .style.animationPlayState = play;
+      clouds.style.animationPlayState    = play;
+      treesLayer.style.animationPlayState= play;
+      road.style.animationPlayState      = play;
 
-      /* Wheel spin rate */
+      // Wheel spin rate
       wheels.forEach(w => {
         if (speed > 0){
           w.style.animationDuration = (0.5 / (speed / 60 + 0.1)) + 's';
@@ -371,16 +449,16 @@
         }
       });
 
-      /* Heartbeat tempo */
+      // Heartbeat tempo
       heartIcon.style.animationDuration = (60 / Math.max(heartRate, 1)) + 's';
 
-      /* Speed lines intensity */
+      // Speed lines intensity
       speedLines.style.opacity = speed > 80 ? (speed - 80) / 60 : 0;
 
-      /* Exhaust smoke when > 70 mph */
+      // Exhaust smoke when > 70 mph
       if (speed > 70) spawnPuff();
 
-      /* Car vibration at high speed */
+      // Car vibration at high speed
       if (speed > 110){
         car.style.animation = 'carShake .1s infinite';
       } else {
@@ -388,9 +466,7 @@
       }
     }
 
-    /* Rear exhaust particles */
     function spawnPuff(){
-      // 1 puff (2 when very fast)
       const count = speed > 120 ? 2 : 1;
       for (let i=0; i<count; i++){
         const p = document.createElement('div');
@@ -414,7 +490,6 @@
       }
     }
 
-    // Keyboard controls
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowUp')    moveCar('up');
       if (e.key === 'ArrowDown')  moveCar('down');
@@ -423,6 +498,7 @@
     });
 
     // Initialize
+    generateTreePanels();
     updateHeartRate();
   </script>
 </body>
