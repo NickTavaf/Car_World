@@ -649,7 +649,7 @@
       .top-reset-btn{
         display: block;
         position: absolute;
-        top: 32px; /* Moved down from 38px to align with smaller lives box */
+        top: 40px; /* Moved down from 38px to align with smaller lives box */
         right: 8px;
         padding: 3px 6px; /* Made slightly smaller */
         font-size: 9px; /* Reduced from 10px */
@@ -669,8 +669,8 @@
       /* Stack control panel vertically on mobile */
       .control-panel{
         flex-direction: column;
-        gap: 15px;
-        padding: 15px;
+        gap: 10px; /* Reduced from 15px */
+        padding: 12px; /* Reduced from 15px */
         max-height: 50vh;
         overflow-y: auto;
         overscroll-behavior: contain; /* Prevent scroll chaining to body */
@@ -734,17 +734,17 @@
 
       /* Make arrow controls bigger and more thumb-friendly */
       .controls{
-        gap: 15px; /* Reduced from 20px */
-        transform: scale(1); /* Reduced from 1.2 */
+        gap: 10px; /* Reduced from 15px */
+        transform: scale(0.85); /* Reduced from 1 */
       }
       .control-btn{
-        width: 50px; /* Reduced from 60px */
-        height: 55px; /* Reduced from 70px */
-        font-size: 24px; /* Reduced from 28px */
+        width: 45px; /* Reduced from 50px */
+        height: 48px; /* Reduced from 55px */
+        font-size: 22px; /* Reduced from 24px */
         background: transparent; /* Remove box background */
         box-shadow: none; /* Remove shadow */
         border-radius: 0; /* Remove rounded corners */
-        padding: 4px; /* Reduced from 5px */
+        padding: 3px; /* Reduced from 4px */
       }
       .control-btn:hover{
         background: transparent;
@@ -757,8 +757,8 @@
       /* Show control labels on mobile */
       .control-label{
         display: block;
-        font-size: 8px; /* Reduced from 9px */
-        margin-top: 1px; /* Reduced from 2px */
+        font-size: 7px; /* Reduced from 8px */
+        margin-top: 0px; /* Reduced from 1px */
         white-space: nowrap;
       }
 
