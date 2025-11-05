@@ -556,6 +556,64 @@
         display: inline;
       }
 
+      /* Make game area take up more vertical space on mobile */
+      .game-area{
+        flex: 1;
+        min-height: 50vh;
+      }
+
+      /* Make road smaller/narrower on mobile for easier gameplay */
+      .road{
+        height: 150px; /* Reduced from 200px */
+        left: 10%;
+        right: 10%;
+        width: 80%; /* Road is now 80% of screen width */
+      }
+
+      /* Adjust car size for mobile */
+      .car{
+        width: 80px; /* Smaller collision box */
+        height: 12px;
+        bottom: 40px;
+      }
+      .car-image{
+        width: 120px; /* Smaller visual car */
+        height: 60px;
+      }
+
+      /* Adjust wheels for smaller car */
+      .wheel{
+        width: 20px;
+        height: 20px;
+        bottom: -18px;
+      }
+      .wheel.front{ left: -8px; }
+      .wheel.rear { right: -4px; }
+
+      /* Make obstacles smaller too */
+      .obstacle{
+        width: 70px;
+        height: 30px;
+        bottom: 40px;
+      }
+      .obstacle-image{
+        width: 70px;
+        height: 60px;
+      }
+
+      /* Adjust clouds to be less prominent */
+      .clouds{
+        opacity: 0.7;
+      }
+      .cloud{
+        transform: scale(0.8);
+      }
+
+      /* Adjust trees for mobile */
+      .tree{
+        bottom: 150px; /* Move up since road is smaller */
+      }
+
       /* Stack control panel vertically on mobile */
       .control-panel{
         flex-direction: column;
@@ -657,6 +715,42 @@
 
     /* Extra small phones */
     @media (max-width: 480px) {
+      /* Make road even smaller for tiny phones */
+      .road{
+        height: 130px;
+        left: 5%;
+        right: 5%;
+        width: 90%;
+      }
+
+      /* Even smaller car for tiny screens */
+      .car{
+        width: 70px;
+        height: 10px;
+        bottom: 35px;
+      }
+      .car-image{
+        width: 100px;
+        height: 50px;
+      }
+
+      /* Smaller obstacles */
+      .obstacle{
+        width: 60px;
+        height: 25px;
+        bottom: 35px;
+      }
+      .obstacle-image{
+        width: 60px;
+        height: 50px;
+      }
+
+      /* Adjust trees position */
+      .tree{
+        bottom: 130px;
+        transform: scale(0.8);
+      }
+
       .control-panel{
         padding: 10px;
         gap: 10px;
@@ -1210,11 +1304,20 @@
       const currentLeft = parseInt((car.style.left || '50').replace('%',''), 10);
       const currentBottom = parseInt((car.style.bottom || '50').replace('px',''), 10);
 
+      // Check if on mobile (screen width < 768px)
+      const isMobile = window.innerWidth < 768;
+      
+      // Adjust limits based on screen size
+      const maxBottom = isMobile ? 140 : 190;  // Smaller road on mobile
+      const minBottom = isMobile ? 30 : 20;
+      const minLeft = isMobile ? 15 : 20;      // Account for narrower road
+      const maxLeft = isMobile ? 85 : 94;
+
       switch(direction){
-        case 'up':    car.style.bottom = Math.min(190, currentBottom + 20) + 'px'; break;
-        case 'down':  car.style.bottom = Math.max(20,  currentBottom - 20) + 'px'; break;
-        case 'left':  car.style.left   = Math.max(20,  currentLeft - 5)  + '%';    break;
-        case 'right': car.style.left   = Math.min(94,  currentLeft + 5)  + '%';    break;
+        case 'up':    car.style.bottom = Math.min(maxBottom, currentBottom + 20) + 'px'; break;
+        case 'down':  car.style.bottom = Math.max(minBottom,  currentBottom - 20) + 'px'; break;
+        case 'left':  car.style.left   = Math.max(minLeft,  currentLeft - 5)  + '%';    break;
+        case 'right': car.style.left   = Math.min(maxLeft,  currentLeft + 5)  + '%';    break;
       }
     }
 
@@ -1304,8 +1407,12 @@
       
       obstacle.appendChild(obstacleImg);
       
-      // Random lane position (matching where player can move)
-      const lanes = [10, 30, 50, 70, 90, 110, 130, 150]; // Different bottom positions
+      // Random lane position - adjust for mobile
+      const isMobile = window.innerWidth < 768;
+      const lanes = isMobile 
+        ? [30, 50, 70, 90, 110, 130] // Fewer, more spaced lanes for mobile
+        : [10, 30, 50, 70, 90, 110, 130, 150]; // More lanes for desktop
+      
       obstacle.style.bottom = lanes[Math.floor(Math.random() * lanes.length)] + 'px';
       
       gameArea.appendChild(obstacle);
