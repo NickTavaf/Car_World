@@ -1308,8 +1308,8 @@
       const isMobile = window.innerWidth < 768;
       
       // Adjust limits based on screen size
-      const maxBottom = isMobile ? 140 : 190;  // Smaller road on mobile
-      const minBottom = isMobile ? 30 : 20;
+      const maxBottom = isMobile ? 120 : 190;  // Lower max so car can't go into trees on mobile
+      const minBottom = isMobile ? 25 : 20;    // Lower min so car can go to bottom of road
       const minLeft = isMobile ? 5 : 20;       // Full width road on mobile
       const maxLeft = isMobile ? 95 : 94;      // Full width road on mobile
 
@@ -1410,7 +1410,7 @@
       // Random lane position - adjust for mobile
       const isMobile = window.innerWidth < 768;
       const lanes = isMobile 
-        ? [40, 55, 70, 85, 100, 115] // Lower positions for mobile (closer to road)
+        ? [30, 45, 60, 75, 90, 105, 120] // Match car's movement range (25-120)
         : [10, 30, 50, 70, 90, 110, 130, 150]; // More lanes for desktop
       
       obstacle.style.bottom = lanes[Math.floor(Math.random() * lanes.length)] + 'px';
