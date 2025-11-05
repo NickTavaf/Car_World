@@ -635,85 +635,94 @@
         bottom: 150px; /* Move to top of road */
       }
 
-      /* Stack control panel vertically on mobile */
+      /* Stack control panel vertically on mobile - MADE MORE COMPACT */
       .control-panel{
         flex-direction: column;
-        gap: 15px;
-        padding: 15px;
-        max-height: 50vh;
+        gap: 8px; /* Reduced from 15px */
+        padding: 10px; /* Reduced from 15px */
+        max-height: 45vh; /* Reduced from 50vh */
         overflow-y: auto;
-        overscroll-behavior: contain; /* Prevent scroll chaining to body */
+        overscroll-behavior: contain;
       }
 
       /* Make stats row flex on mobile to put heart rate and speed side-by-side */
       .stats-row{
         display: flex;
-        gap: 10px;
+        gap: 8px; /* Reduced from 10px */
         width: 100%;
       }
 
-      /* Create a row for heart rate and speed on mobile */
+      /* Create a row for heart rate and speed on mobile - MADE SMALLER */
       .heart-monitor{
         flex-direction: row;
-        gap: 10px;
+        gap: 6px; /* Reduced from 10px */
         align-items: center;
         background: rgba(0,0,0,.7);
-        padding: 8px 15px;
-        border-radius: 10px;
+        padding: 6px 10px; /* Reduced from 8px 15px */
+        border-radius: 8px;
         flex: 1;
       }
       .heart-icon{
-        font-size: 24px;
+        font-size: 20px; /* Reduced from 24px */
       }
       .heart-rate-display{
-        font-size: 24px;
+        font-size: 20px; /* Reduced from 24px */
         margin: 0;
       }
       .heart-rate-label{
-        font-size: 11px;
+        font-size: 10px; /* Reduced from 11px */
       }
 
-      /* Make speed display match heart monitor and sit next to it */
+      /* Make speed display match heart monitor and sit next to it - MADE SMALLER */
       .speed-display{
         display: flex;
         flex-direction: row;
-        gap: 6px;
+        gap: 5px; /* Reduced from 6px */
         align-items: center;
         background: rgba(0,0,0,.7);
-        padding: 8px 15px;
-        border-radius: 10px;
+        padding: 6px 10px; /* Reduced from 8px 15px */
+        border-radius: 8px;
         flex: 1;
       }
       .speed-value{
-        font-size: 24px;
+        font-size: 20px; /* Reduced from 24px */
         margin: 0;
       }
       .speed-label{
-        font-size: 11px;
+        font-size: 10px; /* Reduced from 11px */
         margin: 0;
       }
 
-      /* Make slider full width */
+      /* Make slider full width but smaller */
       .slider-container{
         width: 100%;
+        gap: 6px; /* Reduced from 10px */
+      }
+      .slider-label{
+        font-size: 12px; /* Reduced from 14px */
       }
       .heart-slider{
         width: 100%;
+        height: 6px; /* Reduced from 8px */
+      }
+      .heart-slider::-webkit-slider-thumb{
+        width: 22px; /* Reduced from 26px */
+        height: 22px;
       }
 
-      /* Make arrow controls bigger and more thumb-friendly */
+      /* Make arrow controls smaller and more compact */
       .controls{
-        gap: 20px;
-        transform: scale(1.2);
+        gap: 12px; /* Reduced from 20px */
+        transform: scale(1); /* Removed 1.2 scale */
       }
       .control-btn{
-        width: 60px;
-        height: 70px; /* Taller to fit label */
-        font-size: 28px;
-        background: transparent; /* Remove box background */
-        box-shadow: none; /* Remove shadow */
-        border-radius: 0; /* Remove rounded corners */
-        padding: 5px;
+        width: 50px; /* Reduced from 60px */
+        height: 58px; /* Reduced from 70px */
+        font-size: 22px; /* Reduced from 28px */
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 4px; /* Reduced from 5px */
       }
       .control-btn:hover{
         background: transparent;
@@ -723,39 +732,52 @@
         transform: scale(0.95);
       }
       
-      /* Show control labels on mobile */
+      /* Show control labels on mobile - MADE SMALLER */
       .control-label{
         display: block;
-        font-size: 9px;
-        margin-top: 2px;
+        font-size: 8px; /* Reduced from 9px */
+        margin-top: 1px; /* Reduced from 2px */
         white-space: nowrap;
+      }
+
+      /* Make reset button more compact */
+      .toggle{
+        padding: 8px 12px; /* Reduced from 10px 14px */
+        font-size: 13px; /* Reduced from default */
       }
 
       /* Make instructions smaller on mobile */
       .instructions{
-        font-size: 12px;
-        padding: 8px 12px;
+        font-size: 11px; /* Reduced from 12px */
+        padding: 6px 10px; /* Reduced from 8px 12px */
         max-width: 90%;
       }
 
-      /* Make lives and score displays smaller and more compact */
+      /* Make lives and score displays smaller and more compact - MADE MUCH SMALLER */
       .lives-display, .score-display{
-        top: 8px;
-        padding: 5px 10px;
-        font-size: 12px;
+        top: 6px; /* Reduced from 8px */
+        padding: 3px 6px; /* Reduced from 4px 8px */
+        font-size: 9px; /* Reduced from 10px */
+        border-radius: 6px; /* Reduced from 10px */
       }
       .lives-display{
-        right: 8px;
-        gap: 5px;
+        right: 6px; /* Reduced from 8px */
+        gap: 2px; /* Reduced from 3px */
+      }
+      .lives-display span:first-child{
+        font-size: 8px; /* Make "Lives:" text even smaller */
       }
       .score-display{
-        left: 8px;
+        left: 6px; /* Reduced from 8px */
       }
       .score-value{
-        font-size: 20px;
+        font-size: 16px; /* Reduced from 18px */
+      }
+      .score-label{
+        font-size: 8px; /* Reduced from default */
       }
       .heart-life{
-        font-size: 16px;
+        font-size: 12px; /* Reduced from 14px */
       }
 
       /* Adjust speech bubble for mobile */
@@ -817,26 +839,30 @@
         transform: scale(0.8);
       }
 
+      /* Even more compact control panel */
       .control-panel{
-        padding: 10px;
-        gap: 10px;
+        padding: 8px; /* Reduced from 10px */
+        gap: 6px; /* Reduced from 8px */
+        max-height: 40vh; /* Reduced from 45vh */
       }
       
+      /* Smaller controls */
       .controls{
-        transform: scale(1);
-        gap: 15px;
+        transform: scale(0.9); /* Reduced from 1 */
+        gap: 10px; /* Reduced from 12px */
       }
       
       .control-btn{
-        width: 50px;
-        height: 60px;
-        font-size: 24px;
+        width: 45px; /* Reduced from 50px */
+        height: 52px; /* Reduced from 58px */
+        font-size: 20px; /* Reduced from 22px */
       }
       
       .control-label{
-        font-size: 8px;
+        font-size: 7px; /* Reduced from 8px */
       }
 
+      /* Even smaller start screen */
       .start-title{
         font-size: 28px;
       }
