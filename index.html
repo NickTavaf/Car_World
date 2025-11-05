@@ -649,11 +649,11 @@
       .top-reset-btn{
         display: block;
         position: absolute;
-        top: 38px; /* Below lives display */
+        top: 32px; /* Moved down from 38px to align with smaller lives box */
         right: 8px;
-        padding: 4px 8px;
-        font-size: 10px;
-        border-radius: 6px;
+        padding: 3px 6px; /* Made slightly smaller */
+        font-size: 9px; /* Reduced from 10px */
+        border-radius: 5px; /* Slightly smaller radius */
         border: 0;
         cursor: pointer;
         color: #fff;
@@ -734,17 +734,17 @@
 
       /* Make arrow controls bigger and more thumb-friendly */
       .controls{
-        gap: 20px;
-        transform: scale(1.2);
+        gap: 15px; /* Reduced from 20px */
+        transform: scale(1); /* Reduced from 1.2 */
       }
       .control-btn{
-        width: 60px;
-        height: 70px; /* Taller to fit label */
-        font-size: 28px;
+        width: 50px; /* Reduced from 60px */
+        height: 55px; /* Reduced from 70px */
+        font-size: 24px; /* Reduced from 28px */
         background: transparent; /* Remove box background */
         box-shadow: none; /* Remove shadow */
         border-radius: 0; /* Remove rounded corners */
-        padding: 5px;
+        padding: 4px; /* Reduced from 5px */
       }
       .control-btn:hover{
         background: transparent;
@@ -757,8 +757,8 @@
       /* Show control labels on mobile */
       .control-label{
         display: block;
-        font-size: 9px;
-        margin-top: 2px;
+        font-size: 8px; /* Reduced from 9px */
+        margin-top: 1px; /* Reduced from 2px */
         white-space: nowrap;
       }
 
@@ -772,21 +772,27 @@
       /* Make lives and score displays smaller and more compact */
       .lives-display, .score-display{
         top: 8px;
-        padding: 5px 10px;
-        font-size: 12px;
+        padding: 4px 8px; /* Reduced from 5px 10px */
+        font-size: 10px; /* Reduced from 12px */
       }
       .lives-display{
         right: 8px;
-        gap: 5px;
+        gap: 3px; /* Reduced from 5px */
+      }
+      .lives-display span:first-child{
+        font-size: 9px; /* Smaller "Lives:" text */
       }
       .score-display{
         left: 8px;
       }
       .score-value{
-        font-size: 20px;
+        font-size: 18px; /* Reduced from 20px */
+      }
+      .score-label{
+        font-size: 8px;
       }
       .heart-life{
-        font-size: 16px;
+        font-size: 14px; /* Reduced from 16px */
       }
 
       /* Adjust speech bubble for mobile */
