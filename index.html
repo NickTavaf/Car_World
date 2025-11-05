@@ -1391,12 +1391,16 @@
       const minBottom = isMobile ? 15 : 20;    // Lower min so car can go to bottom of road
       const minLeft = isMobile ? 5 : 20;       // Full width road on mobile
       const maxLeft = isMobile ? 95 : 94;      // Full width road on mobile
+      
+      // Movement increments - larger on mobile for easier dodging
+      const verticalMove = isMobile ? 30 : 20;   // Mobile: 30px, Desktop: 20px
+      const horizontalMove = isMobile ? 8 : 5;   // Mobile: 8%, Desktop: 5%
 
       switch(direction){
-        case 'up':    car.style.bottom = Math.min(maxBottom, currentBottom + 20) + 'px'; break;
-        case 'down':  car.style.bottom = Math.max(minBottom,  currentBottom - 20) + 'px'; break;
-        case 'left':  car.style.left   = Math.max(minLeft,  currentLeft - 5)  + '%';    break;
-        case 'right': car.style.left   = Math.min(maxLeft,  currentLeft + 5)  + '%';    break;
+        case 'up':    car.style.bottom = Math.min(maxBottom, currentBottom + verticalMove) + 'px'; break;
+        case 'down':  car.style.bottom = Math.max(minBottom,  currentBottom - verticalMove) + 'px'; break;
+        case 'left':  car.style.left   = Math.max(minLeft,  currentLeft - horizontalMove)  + '%';    break;
+        case 'right': car.style.left   = Math.min(maxLeft,  currentLeft + horizontalMove)  + '%';    break;
       }
     }
 
