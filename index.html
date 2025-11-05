@@ -542,6 +542,11 @@
     .speed-value{font-size:28px; font-weight:700; color:#3aa0ff;}
     .speed-label{font-size:14px; color:#95a5a6;}
 
+    /* Stats row - will be styled differently on mobile */
+    .stats-row{
+      display: contents; /* On desktop, acts as if it doesn't exist */
+    }
+
     .instructions{
       position:absolute; top:16px; left:50%; transform:translateX(-50%);
       background: rgba(0,0,0,.72); color:#fff; padding:10px 18px;
@@ -634,21 +639,52 @@
         overflow-y: auto;
       }
 
-      /* Make heart monitor more compact */
+      /* Make stats row flex on mobile to put heart rate and speed side-by-side */
+      .stats-row{
+        display: flex;
+        gap: 10px;
+        width: 100%;
+      }
+
+      /* Create a row for heart rate and speed on mobile */
       .heart-monitor{
         flex-direction: row;
-        gap: 15px;
+        gap: 10px;
         align-items: center;
+        background: rgba(0,0,0,.7);
+        padding: 8px 15px;
+        border-radius: 10px;
+        flex: 1;
       }
       .heart-icon{
-        font-size: 30px;
+        font-size: 24px;
       }
       .heart-rate-display{
-        font-size: 28px;
+        font-size: 24px;
         margin: 0;
       }
       .heart-rate-label{
-        font-size: 12px;
+        font-size: 11px;
+      }
+
+      /* Make speed display match heart monitor and sit next to it */
+      .speed-display{
+        display: flex;
+        flex-direction: row;
+        gap: 6px;
+        align-items: center;
+        background: rgba(0,0,0,.7);
+        padding: 8px 15px;
+        border-radius: 10px;
+        flex: 1;
+      }
+      .speed-value{
+        font-size: 24px;
+        margin: 0;
+      }
+      .speed-label{
+        font-size: 11px;
+        margin: 0;
       }
 
       /* Make slider full width */
@@ -689,19 +725,6 @@
         white-space: nowrap;
       }
 
-      /* Make speed display horizontal */
-      .speed-display{
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-      .speed-value{
-        font-size: 24px;
-      }
-      .speed-label{
-        font-size: 12px;
-      }
-
       /* Make instructions smaller on mobile */
       .instructions{
         font-size: 12px;
@@ -709,17 +732,24 @@
         max-width: 90%;
       }
 
-      /* Make lives and score displays smaller */
+      /* Make lives and score displays smaller and more compact */
       .lives-display, .score-display{
-        top: 10px;
-        padding: 8px 12px;
-        font-size: 14px;
+        top: 8px;
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+      .lives-display{
+        right: 8px;
+        gap: 5px;
+      }
+      .score-display{
+        left: 8px;
       }
       .score-value{
-        font-size: 24px;
+        font-size: 20px;
       }
       .heart-life{
-        font-size: 20px;
+        font-size: 16px;
       }
 
       /* Adjust speech bubble for mobile */
@@ -895,10 +925,17 @@
   </div>
 
   <div class="control-panel">
-    <div class="heart-monitor">
-      <div class="heart-icon">❤️</div>
-      <div class="heart-rate-display" id="heartRateDisplay">60</div>
-      <div class="heart-rate-label">BPM</div>
+    <div class="stats-row">
+      <div class="heart-monitor">
+        <div class="heart-icon">❤️</div>
+        <div class="heart-rate-display" id="heartRateDisplay">60</div>
+        <div class="heart-rate-label">BPM</div>
+      </div>
+
+      <div class="speed-display">
+        <div class="speed-value" id="speedDisplay">0</div>
+        <div class="speed-label">MPH</div>
+      </div>
     </div>
 
     <div class="slider-container">
@@ -928,11 +965,6 @@
     </div>
 
     <button class="toggle" id="resetBtn">Reset Game</button>
-
-    <div class="speed-display">
-      <div class="speed-value" id="speedDisplay">0</div>
-      <div class="speed-label">MPH</div>
-    </div>
   </div>
 
   <script>
@@ -1356,7 +1388,7 @@
       
       // Adjust limits based on screen size
       const maxBottom = isMobile ? 120 : 190;  // Lower max so car can't go into trees on mobile
-      const minBottom = isMobile ? 15 : 20;    // Lower min so car can go to bottom of road
+      const minBottom = isMobile ? 25 : 20;    // Lower min so car can go to bottom of road
       const minLeft = isMobile ? 5 : 20;       // Full width road on mobile
       const maxLeft = isMobile ? 95 : 94;      // Full width road on mobile
 
