@@ -803,7 +803,7 @@
       .top-reset-btn{
         display: block;
         position: absolute;
-        top: 45px; /* Moved down from 38px to align with smaller lives box */
+        top: 50px; /* Moved down from 38px to align with smaller lives box */
         right: 8px;
         padding: 3px 6px; /* Made slightly smaller */
         font-size: 9px; /* Reduced from 10px */
@@ -963,7 +963,7 @@
 
       /* Make papers counter smaller and fit better on mobile */
       .papers-collected{
-        top: 60px; /* Align with smaller score/lives displays */
+        top: 50px; /* Align with smaller score/lives displays */
         left: 8px;
         padding: 4px 8px;
         font-size: 10px;
@@ -1279,7 +1279,7 @@
     let obstacles = [];
     let papers = [];
     let lastObstacleTime = 0;
-    let lastPaperTime = 0;
+    let lastPaperTime = 0; // Will be set when game starts
     let spawnInterval;
     let collisionInterval;
     let scoreInterval;
@@ -1390,6 +1390,9 @@
       obstacles = [];
       papers.forEach(paper => paper.remove());
       papers = [];
+      
+      // Reset paper spawn timer - set to past time to allow immediate first spawn
+      lastPaperTime = Date.now() - 10000; // Start 10 seconds in the past to spawn immediately
       
       // Welcome messages - randomly select one
       const startMessages = [
@@ -1864,21 +1867,22 @@
       }, duration + 100);
     }
 
-    // Paper spawning and collection
+    // Paper spawning and collection - MODIFIED FOR 10 SECOND INTERVALS
     function spawnPaper(){
       if (speed < 10 || !gameActive) return;
-      if (papersCollected >= 3) return; // Max 3 papers (changed from 10)
+      if (papersCollected >= 3) return; // Max 3 papers
 
       const now = Date.now();
-      const paperSpawnInterval = Math.max(10000, 18000 - speed * 50); // Increased base interval
       
-      if (now - lastPaperTime < paperSpawnInterval) return;
+      // Enforce 10 second spawn interval
+      const timeSinceLastSpawn = now - lastPaperTime;
+      if (timeSinceLastSpawn < 15000) { // 10 seconds = 10000ms
+        return; // Don't spawn yet, wait for 10 seconds
+      }
       
-      // Random chance to spawn (25% chance when conditions are met) - reduced from 30%
-      if (Math.random() > 0.25) return;
-      
+      // Update last spawn time BEFORE spawning to prevent multiple spawns
       lastPaperTime = now;
-
+      
       // Get next uncollected paper
       const availablePapers = storyDocuments.filter(doc => !collectedPaperIds.includes(doc.id));
       if (availablePapers.length === 0) return;
@@ -1906,17 +1910,17 @@
         return !occupiedLanes.some(obsLane => Math.abs(obsLane - lane) < 50); // 50px minimum distance
       });
       
-      // If no safe lanes available, don't spawn the paper
-      if (safeLanes.length === 0) {
-        return;
-      }
+      // If no safe lanes available, still spawn but choose any lane
+      const chosenLane = safeLanes.length > 0 
+        ? safeLanes[Math.floor(Math.random() * safeLanes.length)]
+        : lanes[Math.floor(Math.random() * lanes.length)];
       
-      // Choose from safe lanes
-      const safeLane = safeLanes[Math.floor(Math.random() * safeLanes.length)];
-      paper.style.bottom = safeLane + 'px';
+      paper.style.bottom = chosenLane + 'px';
       
       gameArea.appendChild(paper);
       papers.push(paper);
+      
+      console.log('Paper spawned! Total papers collected:', papersCollected);
 
       // Calculate duration - make papers move MUCH SLOWER than obstacles for safety
       const dashDur = Math.max(0.35, 1.3 / (speed/60 + 0.4));
