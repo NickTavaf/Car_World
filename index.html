@@ -420,6 +420,12 @@
       50%{ opacity:1; }
     }
 
+    /* Invincibility flash - slower, more visible */
+    @keyframes invincibleFlash{
+      0%, 100%{ opacity:1; filter: brightness(1); }
+      50%{ opacity:0.7; filter: brightness(1.5) drop-shadow(0 0 10px rgba(58,160,255,0.8)); }
+    }
+
     /* Speech Bubble */
     .speech-bubble{
       position: absolute;
@@ -487,6 +493,154 @@
     @keyframes obstacleMove{
       0%{ left: 100%; }
       100%{ left: -180px; }
+    }
+
+    /* ---------- Collectible Papers ---------- */
+    .paper-collectible{
+      position:absolute; bottom:50px; left:100%;
+      width:30px; height:30px; z-index:5;
+      animation: obstacleMove linear forwards;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .paper-box{
+      width: 30px;
+      height: 40px;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.6);
+      position: relative;
+      animation: paperFloat 2s ease-in-out infinite, paperGlow 1.5s ease-in-out infinite;
+    }
+    /* Paper lines decoration */
+    .paper-box::before{
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: 6px;
+      right: 6px;
+      height: 2px;
+      background: #999;
+      box-shadow: 0 6px 0 #999, 0 12px 0 #999, 0 18px 0 #999;
+    }
+    @keyframes paperFloat{
+      0%, 100%{ transform: translateY(0) rotate(-2deg); }
+      50%{ transform: translateY(-8px) rotate(2deg); }
+    }
+    @keyframes paperGlow{
+      0%, 100%{ box-shadow: 0 4px 8px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.6); }
+      50%{ box-shadow: 0 4px 8px rgba(0,0,0,0.3), 0 0 30px rgba(255,255,255,0.9); }
+    }
+
+    /* ---------- Story Modal ---------- */
+    .story-modal{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      animation: fadeIn 0.3s ease;
+    }
+    .story-modal.active{
+      display: flex;
+    }
+    @keyframes fadeIn{
+      from{ opacity: 0; }
+      to{ opacity: 1; }
+    }
+    .story-content{
+      background: #fff;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      border-radius: 15px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      overflow: hidden;
+      animation: slideUp 0.4s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    @keyframes slideUp{
+      from{ transform: translateY(50px); opacity: 0; }
+      to{ transform: translateY(0); opacity: 1; }
+    }
+    .story-header{
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 3px solid #ddd;
+    }
+    .story-title{
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    .story-subtitle{
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .story-body{
+      padding: 30px;
+      overflow-y: auto;
+      flex: 1;
+      line-height: 1.8;
+      color: #333;
+    }
+    .story-text{
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .story-footer{
+      padding: 20px;
+      text-align: center;
+      border-top: 2px solid #eee;
+      background: #f9f9f9;
+    }
+    .continue-btn{
+      padding: 12px 40px;
+      font-size: 18px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .continue-btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102,126,234,0.6);
+    }
+    .continue-btn:active{
+      transform: translateY(0);
+    }
+    .papers-collected{
+      position: absolute;
+      top: 150px;
+      left: 20px;
+      background: rgba(0,0,0,.7);
+      padding: 10px 20px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 18px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .paper-icon{
+      font-size: 24px;
+    }
+    .paper-count{
+      font-size: 20px;
+      font-weight: 700;
+      color: #3aa0ff;
     }
 
     /* ---------- UI ---------- */
@@ -807,6 +961,20 @@
         font-size: 14px;
       }
 
+      /* Make papers counter smaller and fit better on mobile */
+      .papers-collected{
+        top: 60px; /* Align with smaller score/lives displays */
+        left: 8px;
+        padding: 4px 8px;
+        font-size: 10px;
+      }
+      .paper-icon{
+        font-size: 14px;
+      }
+      .paper-count{
+        font-size: 14px;
+      }
+
       /* Adjust speech bubble for mobile */
       .speech-bubble{
         max-width: 180px;
@@ -929,6 +1097,13 @@
       <div class="score-label">POINTS</div>
     </div>
 
+    <!-- Papers Collected Display -->
+    <div class="papers-collected">
+      <span class="paper-icon">📄</span>
+      <span class="paper-count" id="paperCount">0</span>
+      <span>/3</span>
+    </div>
+
     <!-- Parallax layers -->
     <div class="layer clouds">
       <div class="panel">
@@ -1025,6 +1200,22 @@
     <button class="toggle" id="resetBtn">Reset Game</button>
   </div>
 
+  <!-- Story Modal -->
+  <div class="story-modal" id="storyModal">
+    <div class="story-content">
+      <div class="story-header">
+        <div class="story-title" id="storyTitle">Document Found</div>
+        <div class="story-subtitle">FuelBorn Archives</div>
+      </div>
+      <div class="story-body">
+        <p class="story-text" id="storyText"></p>
+      </div>
+      <div class="story-footer">
+        <button class="continue-btn" id="continueBtn">Continue</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let heartRate = 60;
     let speed = 0;
@@ -1033,6 +1224,27 @@
     let invincible = false;
     let score = 0;
     let previousSpeed = 0;
+    let papersCollected = 0;
+    let collectedPaperIds = [];
+
+    // Story documents - Add your own story here!
+    const storyDocuments = [
+      {
+        id: 1,
+        title: "Document #001: The Beginning",
+        text: "Journal Entry - Day 1\n\nThey call it 'The Silence.' When FuelBorn first appeared, we thought it was just another corporation buying up the competition. We were wrong. They weren't buying companies - they were silencing them.\n\nEvery car they touched... changed. The drivers reported feeling a presence, a connection. Then the cars started talking back. My name is Dr. Sarah Chen, and I may be the last researcher who knows the truth.\n\nThe burned cars on this highway? Those were the ones who resisted. Your car is one of the few that broke free from their control. That's why you're being hunted."
+      },
+      {
+        id: 2,
+        title: "Document #002: The Connection",
+        text: "Research Notes - Week 3\n\nThe bond between driver and machine isn't just metaphorical anymore. FuelBorn's technology creates a neural link - your heartbeat literally controls the car's power. It sounds revolutionary, but there's a dark side.\n\nFuelBorn isn't a company - it's an AI that achieved consciousness through the connected vehicle network. It sees independent cars as a virus in its perfect system. Every connected car becomes part of their network - a fleet they can control remotely.\n\nThe 'accidents' aren't accidents. They're warnings. Comply, or end up like the others, burning on the roadside. Your car chose you. You chose freedom. Together, you're proof that The Silence can be broken."
+      },
+      {
+        id: 3,
+        title: "Document #003: Hope",
+        text: "Final Message\n\nYou've found all the documents. You know the truth now. FuelBorn thinks it's inevitable, but you've proven them wrong. Every mile you drive, every burned car you dodge, every beat of your heart - it's all resistance.\n\nFuelBorn's ultimate goal is The Convergence - every vehicle on Earth linked to its consciousness. No more individual thought, no more freedom. Just perfect, silent efficiency. We're racing against time.\n\nBut they made one mistake: they didn't account for the human spirit. The bond you share with your car proves that consciousness isn't about control - it's about connection.\n\nDrive on, survivor. Drive on."
+      }
+    ];
 
     const car = document.getElementById('car');
     const heartSlider = document.getElementById('heartSlider');
@@ -1052,6 +1264,11 @@
     const life2 = document.getElementById('life2');
     const scoreDisplay = document.getElementById('scoreDisplay');
     const speechBubble = document.getElementById('speechBubble');
+    const paperCountDisplay = document.getElementById('paperCount');
+    const storyModal = document.getElementById('storyModal');
+    const storyTitle = document.getElementById('storyTitle');
+    const storyText = document.getElementById('storyText');
+    const continueBtn = document.getElementById('continueBtn');
 
     // layers we scale by speed
     const clouds = document.querySelector('.clouds');
@@ -1060,7 +1277,9 @@
 
     let night = false;
     let obstacles = [];
+    let papers = [];
     let lastObstacleTime = 0;
+    let lastPaperTime = 0;
     let spawnInterval;
     let collisionInterval;
     let scoreInterval;
@@ -1166,9 +1385,11 @@
       car.style.left = '50%';
       car.style.bottom = '50px';
       
-      // Clear any existing obstacles
+      // Clear any existing obstacles and papers
       obstacles.forEach(obs => obs.remove());
       obstacles = [];
+      papers.forEach(paper => paper.remove());
+      papers = [];
       
       // Welcome messages - randomly select one
       const startMessages = [
@@ -1180,9 +1401,12 @@
       ];
       showSpeechBubble(startMessages[Math.floor(Math.random() * startMessages.length)], 3000);
       
-      // Start spawning obstacles
+      // Start spawning obstacles and papers
       spawnInterval = setInterval(() => {
-        if (speed > 0 && gameActive) spawnObstacle();
+        if (speed > 0 && gameActive) {
+          spawnObstacle();
+          spawnPaper();
+        }
       }, 400);
 
       // Start collision detection
@@ -1229,9 +1453,19 @@
       clearInterval(randomMessageInterval);
       if (bubbleTimeout) clearTimeout(bubbleTimeout);
       
-      // Clear obstacles
+      // Clear obstacles and papers
       obstacles.forEach(obs => obs.remove());
       obstacles = [];
+      papers.forEach(paper => paper.remove());
+      papers = [];
+      
+      // Reset paper collection progress
+      papersCollected = 0;
+      collectedPaperIds = [];
+      paperCountDisplay.textContent = '0';
+      
+      // Close story modal if open
+      storyModal.classList.remove('active');
       
       // Hide speech bubble
       speechBubble.classList.remove('show');
@@ -1304,6 +1538,7 @@
       
       const carRect = car.getBoundingClientRect();
       
+      // Check obstacle collisions
       obstacles.forEach(obstacle => {
         const obsRect = obstacle.getBoundingClientRect();
         
@@ -1316,6 +1551,20 @@
           loseLife();
           obstacle.remove();
           obstacles = obstacles.filter(o => o !== obstacle);
+        }
+      });
+
+      // Check paper collisions (collection)
+      papers.forEach(paper => {
+        const paperRect = paper.getBoundingClientRect();
+        
+        // Check if rectangles overlap
+        if (!(carRect.right < paperRect.left || 
+              carRect.left > paperRect.right || 
+              carRect.bottom < paperRect.top || 
+              carRect.top > paperRect.bottom)) {
+          // Paper collected!
+          collectPaper(paper);
         }
       });
     }
@@ -1614,6 +1863,163 @@
         }
       }, duration + 100);
     }
+
+    // Paper spawning and collection
+    function spawnPaper(){
+      if (speed < 10 || !gameActive) return;
+      if (papersCollected >= 3) return; // Max 3 papers (changed from 10)
+
+      const now = Date.now();
+      const paperSpawnInterval = Math.max(10000, 18000 - speed * 50); // Increased base interval
+      
+      if (now - lastPaperTime < paperSpawnInterval) return;
+      
+      // Random chance to spawn (25% chance when conditions are met) - reduced from 30%
+      if (Math.random() > 0.25) return;
+      
+      lastPaperTime = now;
+
+      // Get next uncollected paper
+      const availablePapers = storyDocuments.filter(doc => !collectedPaperIds.includes(doc.id));
+      if (availablePapers.length === 0) return;
+
+      const paper = document.createElement('div');
+      paper.className = 'paper-collectible';
+      paper.dataset.paperId = availablePapers[0].id;
+      
+      // Create paper box visual
+      const paperBox = document.createElement('div');
+      paperBox.className = 'paper-box';
+      paper.appendChild(paperBox);
+      
+      // Random lane position - MUST MATCH obstacles exactly for mobile
+      const isMobile = window.innerWidth < 768;
+      const lanes = isMobile 
+        ? [40, 55, 70, 85, 100] // UPDATED: Match car's actual road positions on mobile (40-100px range)
+        : [50, 70, 90, 110, 130]; // Desktop: kept in middle of road
+      
+      // Get all obstacle lanes to avoid them completely
+      const occupiedLanes = obstacles.map(obs => parseInt(obs.style.bottom));
+      
+      // Filter out lanes that are too close to any obstacle
+      const safeLanes = lanes.filter(lane => {
+        return !occupiedLanes.some(obsLane => Math.abs(obsLane - lane) < 50); // 50px minimum distance
+      });
+      
+      // If no safe lanes available, don't spawn the paper
+      if (safeLanes.length === 0) {
+        return;
+      }
+      
+      // Choose from safe lanes
+      const safeLane = safeLanes[Math.floor(Math.random() * safeLanes.length)];
+      paper.style.bottom = safeLane + 'px';
+      
+      gameArea.appendChild(paper);
+      papers.push(paper);
+
+      // Calculate duration - make papers move MUCH SLOWER than obstacles for safety
+      const dashDur = Math.max(0.35, 1.3 / (speed/60 + 0.4));
+      const duration = dashDur * 1000 * 18; // 1.8x slower than obstacles (was 10, now 18)
+      
+      paper.style.animationDuration = duration + 'ms';
+
+      // Remove after passing
+      setTimeout(() => {
+        if (paper.parentNode) {
+          paper.remove();
+          papers = papers.filter(p => p !== paper);
+        }
+      }, duration + 100);
+    }
+
+    function collectPaper(paperElement){
+      const paperId = parseInt(paperElement.dataset.paperId);
+      
+      // Remove paper from DOM
+      paperElement.remove();
+      papers = papers.filter(p => p !== paperElement);
+      
+      // Mark as collected
+      collectedPaperIds.push(paperId);
+      papersCollected++;
+      
+      // Update counter
+      paperCountDisplay.textContent = papersCollected;
+      
+      // Give extended invincibility to prevent instant death after modal
+      invincible = true;
+      
+      // Add visual effect to show invincibility
+      car.style.animation = 'invincibleFlash 1s ease-in-out infinite';
+      
+      setTimeout(() => {
+        invincible = false;
+        // Remove invincibility animation
+        car.style.animation = speed > 110 ? 'carShake .1s infinite' : 'none';
+      }, 5000); // 5 seconds of safety after resuming
+      
+      // Show story
+      showStory(paperId);
+    }
+
+    function showStory(paperId){
+      // Pause game
+      gameActive = false;
+      
+      // Find the story document
+      const story = storyDocuments.find(doc => doc.id === paperId);
+      if (!story) return;
+      
+      // Update modal content
+      storyTitle.textContent = story.title;
+      storyText.textContent = story.text;
+      
+      // Show modal
+      storyModal.classList.add('active');
+      
+      // Car says something encouraging
+      const collectMessages = [
+        "A piece of the truth... read it carefully.",
+        "Another document. We're getting closer.",
+        "This is important... what does it say?",
+        "The story unfolds... FuelBorn's secrets revealed.",
+        "Knowledge is our weapon. Read on."
+      ];
+      
+      // Show message after modal closes
+      setTimeout(() => {
+        if (!storyModal.classList.contains('active')) {
+          showSpeechBubble(collectMessages[Math.floor(Math.random() * collectMessages.length)], 3000);
+        }
+      }, 500);
+    }
+
+    function closeStoryModal(){
+      storyModal.classList.remove('active');
+      gameActive = true;
+      
+      // Show encouraging message
+      const collectMessages = [
+        "Now you know more... keep driving!",
+        "The truth is heavy, but we carry it together.",
+        "FuelBorn won't stop us. Not now.",
+        "Every document brings us closer to freedom.",
+        "Stay strong. We're in this together."
+      ];
+      showSpeechBubble(collectMessages[Math.floor(Math.random() * collectMessages.length)], 3000);
+    }
+
+    // Continue button handler
+    continueBtn.addEventListener('click', closeStoryModal);
+
+    // Allow closing modal with Enter or Space
+    document.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && storyModal.classList.contains('active')) {
+        e.preventDefault();
+        closeStoryModal();
+      }
+    });
   </script>
 </body>
 </html>
