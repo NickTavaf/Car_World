@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FuelBorn</title>
+  <title>Heart Rate Car Controller — Night & Smoke (Detailed Scenery)</title>
   <style>
     :root{
       --sky1:#87CEEB;
@@ -562,12 +562,12 @@
         min-height: 50vh;
       }
 
-      /* Make road smaller/narrower on mobile for easier gameplay */
+      /* Make road fill full width on mobile for easier gameplay */
       .road{
         height: 150px; /* Reduced from 200px */
-        left: 10%;
-        right: 10%;
-        width: 80%; /* Road is now 80% of screen width */
+        left: 0;
+        right: 0;
+        width: 100%; /* Full width on mobile */
       }
 
       /* Adjust car size for mobile */
@@ -590,11 +590,11 @@
       .wheel.front{ left: -8px; }
       .wheel.rear { right: -4px; }
 
-      /* Make obstacles smaller too */
+      /* Make obstacles smaller and lower on road */
       .obstacle{
         width: 70px;
         height: 30px;
-        bottom: 40px;
+        bottom: 40px; /* Match car height */
       }
       .obstacle-image{
         width: 70px;
@@ -609,9 +609,9 @@
         transform: scale(0.8);
       }
 
-      /* Adjust trees for mobile */
+      /* Adjust trees for mobile - position them on the road edge */
       .tree{
-        bottom: 150px; /* Move up since road is smaller */
+        bottom: 150px; /* Move to top of road */
       }
 
       /* Stack control panel vertically on mobile */
@@ -715,12 +715,12 @@
 
     /* Extra small phones */
     @media (max-width: 480px) {
-      /* Make road even smaller for tiny phones */
+      /* Make road full width for tiny phones too */
       .road{
         height: 130px;
-        left: 5%;
-        right: 5%;
-        width: 90%;
+        left: 0;
+        right: 0;
+        width: 100%;
       }
 
       /* Even smaller car for tiny screens */
@@ -1310,8 +1310,8 @@
       // Adjust limits based on screen size
       const maxBottom = isMobile ? 140 : 190;  // Smaller road on mobile
       const minBottom = isMobile ? 30 : 20;
-      const minLeft = isMobile ? 15 : 20;      // Account for narrower road
-      const maxLeft = isMobile ? 85 : 94;
+      const minLeft = isMobile ? 5 : 20;       // Full width road on mobile
+      const maxLeft = isMobile ? 95 : 94;      // Full width road on mobile
 
       switch(direction){
         case 'up':    car.style.bottom = Math.min(maxBottom, currentBottom + 20) + 'px'; break;
@@ -1410,7 +1410,7 @@
       // Random lane position - adjust for mobile
       const isMobile = window.innerWidth < 768;
       const lanes = isMobile 
-        ? [30, 50, 70, 90, 110, 130] // Fewer, more spaced lanes for mobile
+        ? [40, 55, 70, 85, 100, 115] // Lower positions for mobile (closer to road)
         : [10, 30, 50, 70, 90, 110, 130, 150]; // More lanes for desktop
       
       obstacle.style.bottom = lanes[Math.floor(Math.random() * lanes.length)] + 'px';
