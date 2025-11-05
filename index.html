@@ -31,6 +31,9 @@
       overflow:hidden;
       display:flex;
       flex-direction:column;
+      touch-action: none; /* Prevent default touch behaviors like scrolling */
+      position: fixed; /* Lock body position */
+      width: 100%;
     }
 
     /* Start Screen Overlay */
@@ -136,6 +139,7 @@
       position:relative;
       overflow:hidden;
       transition: background 3s ease;
+      touch-action: none; /* Prevent scrolling on touch */
     }
     .game-area::before{
       content:"";
@@ -491,6 +495,7 @@
       padding:18px;
       display:flex; gap:20px; justify-content:space-around; align-items:center;
       box-shadow:0 -6px 22px rgba(0,0,0,.4);
+      touch-action: pan-y; /* Allow vertical scrolling but prevent horizontal bounce */
     }
     .heart-monitor{display:flex; flex-direction:column; align-items:center; color:#fff;}
     .heart-icon{font-size:40px; color:#e74c3c; animation:heartbeat 1s ease-in-out infinite;}
@@ -637,6 +642,7 @@
         padding: 15px;
         max-height: 50vh;
         overflow-y: auto;
+        overscroll-behavior: contain; /* Prevent scroll chaining to body */
       }
 
       /* Make stats row flex on mobile to put heart rate and speed side-by-side */
@@ -1393,8 +1399,8 @@
       const maxLeft = isMobile ? 95 : 94;      // Full width road on mobile
       
       // Movement increments - larger on mobile for easier dodging
-      const verticalMove = isMobile ? 37 : 20;   // Mobile: 30px, Desktop: 20px
-      const horizontalMove = isMobile ? 9.5 : 5;   // Mobile: 8%, Desktop: 5%
+      const verticalMove = isMobile ? 35 : 20;   // Mobile: 30px, Desktop: 20px
+      const horizontalMove = isMobile ? 9 : 5;   // Mobile: 8%, Desktop: 5%
 
       switch(direction){
         case 'up':    car.style.bottom = Math.min(maxBottom, currentBottom + verticalMove) + 'px'; break;
@@ -1423,6 +1429,10 @@
       touchStartY = e.changedTouches[0].screenY;
     }, false);
 
+    gameArea.addEventListener('touchmove', (e) => {
+      e.preventDefault(); // Prevent page scrolling during swipe
+    }, { passive: false });
+
     gameArea.addEventListener('touchend', (e) => {
       touchEndX = e.changedTouches[0].screenX;
       touchEndY = e.changedTouches[0].screenY;
@@ -1439,6 +1449,13 @@
       touchStartX = e.changedTouches[0].screenX;
       touchStartY = e.changedTouches[0].screenY;
     }, false);
+
+    controlPanel.addEventListener('touchmove', (e) => {
+      // Only prevent scrolling if not on slider
+      if (!e.target.closest('.heart-slider') && !e.target.closest('.toggle')) {
+        e.preventDefault(); // Prevent page scrolling during swipe
+      }
+    }, { passive: false });
 
     controlPanel.addEventListener('touchend', (e) => {
       // Only handle swipes on the controls area, not on slider or buttons
