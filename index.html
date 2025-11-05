@@ -938,11 +938,6 @@
       </div>
     </div>
 
-    <div class="slider-container">
-      <label class="slider-label">Adjust Heart Rate</label>
-      <input type="range" class="heart-slider" id="heartSlider" min="40" max="180" value="60">
-    </div>
-
     <div class="controls">
       <button class="control-btn" onclick="moveCar('up')">
         ↑
@@ -962,6 +957,11 @@
         ↓
         <span class="control-label">Swipe Down</span>
       </button>
+    </div>
+
+    <div class="slider-container">
+      <label class="slider-label">Adjust Heart Rate</label>
+      <input type="range" class="heart-slider" id="heartSlider" min="40" max="180" value="60">
     </div>
 
     <button class="toggle" id="resetBtn">Reset Game</button>
@@ -1393,8 +1393,8 @@
       const maxLeft = isMobile ? 95 : 94;      // Full width road on mobile
       
       // Movement increments - larger on mobile for easier dodging
-      const verticalMove = isMobile ? 35 : 20;   // Mobile: 30px, Desktop: 20px
-      const horizontalMove = isMobile ? 9 : 5;   // Mobile: 8%, Desktop: 5%
+      const verticalMove = isMobile ? 37 : 20;   // Mobile: 30px, Desktop: 20px
+      const horizontalMove = isMobile ? 9.5 : 5;   // Mobile: 8%, Desktop: 5%
 
       switch(direction){
         case 'up':    car.style.bottom = Math.min(maxBottom, currentBottom + verticalMove) + 'px'; break;
