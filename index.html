@@ -1393,8 +1393,8 @@
       const maxLeft = isMobile ? 95 : 94;      // Full width road on mobile
       
       // Movement increments - larger on mobile for easier dodging
-      const verticalMove = isMobile ? 30 : 20;   // Mobile: 30px, Desktop: 20px
-      const horizontalMove = isMobile ? 8 : 5;   // Mobile: 8%, Desktop: 5%
+      const verticalMove = isMobile ? 35 : 20;   // Mobile: 30px, Desktop: 20px
+      const horizontalMove = isMobile ? 9 : 5;   // Mobile: 8%, Desktop: 5%
 
       switch(direction){
         case 'up':    car.style.bottom = Math.min(maxBottom, currentBottom + verticalMove) + 'px'; break;
@@ -1417,12 +1417,34 @@
     let touchEndX = 0;
     let touchEndY = 0;
 
+    // Add swipe support to game area
     gameArea.addEventListener('touchstart', (e) => {
       touchStartX = e.changedTouches[0].screenX;
       touchStartY = e.changedTouches[0].screenY;
     }, false);
 
     gameArea.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      touchEndY = e.changedTouches[0].screenY;
+      handleSwipe();
+    }, false);
+
+    // Add swipe support to control panel area too
+    const controlPanel = document.querySelector('.control-panel');
+    controlPanel.addEventListener('touchstart', (e) => {
+      // Only handle swipes on the controls area, not on slider or buttons
+      if (e.target.closest('.heart-slider') || e.target.closest('.toggle')) {
+        return; // Let slider and reset button work normally
+      }
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, false);
+
+    controlPanel.addEventListener('touchend', (e) => {
+      // Only handle swipes on the controls area, not on slider or buttons
+      if (e.target.closest('.heart-slider') || e.target.closest('.toggle')) {
+        return; // Let slider and reset button work normally
+      }
       touchEndX = e.changedTouches[0].screenX;
       touchEndY = e.changedTouches[0].screenY;
       handleSwipe();
