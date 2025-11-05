@@ -511,9 +511,20 @@
       width:54px; height:54px; border:0; border-radius:12px; cursor:pointer;
       display:flex; align-items:center; justify-content:center; font-size:22px; color:#fff; background:#3b4a63;
       box-shadow:0 4px 6px rgba(0,0,0,.3); transition:transform .15s, background .15s;
+      flex-direction: column;
+      gap: 4px;
     }
     .control-btn:hover{transform:translateY(-2px); background:#2f3e56;}
     .control-btn:active{transform:translateY(0);}
+    
+    /* Hide control labels on desktop */
+    .control-label{
+      display: none;
+      font-size: 10px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1;
+    }
 
     .toggle{
       padding:10px 14px; border-radius:10px; border:0; cursor:pointer; color:#fff; background:#e74c3c; font-weight:700;
@@ -655,8 +666,27 @@
       }
       .control-btn{
         width: 60px;
-        height: 60px;
-        font-size: 24px;
+        height: 70px; /* Taller to fit label */
+        font-size: 28px;
+        background: transparent; /* Remove box background */
+        box-shadow: none; /* Remove shadow */
+        border-radius: 0; /* Remove rounded corners */
+        padding: 5px;
+      }
+      .control-btn:hover{
+        background: transparent;
+        transform: translateY(0);
+      }
+      .control-btn:active{
+        transform: scale(0.95);
+      }
+      
+      /* Show control labels on mobile */
+      .control-label{
+        display: block;
+        font-size: 9px;
+        margin-top: 2px;
+        white-space: nowrap;
       }
 
       /* Make speed display horizontal */
@@ -758,12 +788,17 @@
       
       .controls{
         transform: scale(1);
+        gap: 15px;
       }
       
       .control-btn{
         width: 50px;
-        height: 50px;
-        font-size: 20px;
+        height: 60px;
+        font-size: 24px;
+      }
+      
+      .control-label{
+        font-size: 8px;
       }
 
       .start-title{
@@ -872,12 +907,24 @@
     </div>
 
     <div class="controls">
-      <button class="control-btn" onclick="moveCar('up')">↑</button>
+      <button class="control-btn" onclick="moveCar('up')">
+        ↑
+        <span class="control-label">Swipe Up</span>
+      </button>
       <div>
-        <button class="control-btn" onclick="moveCar('left')">←</button>
-        <button class="control-btn" onclick="moveCar('right')">→</button>
+        <button class="control-btn" onclick="moveCar('left')">
+          ←
+          <span class="control-label">Swipe Left</span>
+        </button>
+        <button class="control-btn" onclick="moveCar('right')">
+          →
+          <span class="control-label">Swipe Right</span>
+        </button>
       </div>
-      <button class="control-btn" onclick="moveCar('down')">↓</button>
+      <button class="control-btn" onclick="moveCar('down')">
+        ↓
+        <span class="control-label">Swipe Down</span>
+      </button>
     </div>
 
     <button class="toggle" id="resetBtn">Reset Game</button>
