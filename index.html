@@ -14,6 +14,9 @@
       /* Night mode controls */
       --sceneDarken: 0;           /* 0 (day) → 0.35 (night) */
       --beamOpacity: 0;           /* 0 (off) → 0.9 (on) */
+      --nightSky1: #1a1a2e;       /* Dark blue for night */
+      --nightSky2: #0f3460;       /* Slightly lighter dark blue */
+      --skyMix: 0;                /* 0 (day) → 1 (night) */
 
       /* Road dash duration (will be updated by JS) */
       --dashDur: 1.3s;
@@ -30,14 +33,154 @@
       flex-direction:column;
     }
 
+    /* Start Screen Overlay */
+    .start-screen{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.85);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:1000;
+      backdrop-filter: blur(5px);
+    }
+    .start-screen.hidden{
+      display:none;
+    }
+    .start-content{
+      text-align:center;
+      color:#fff;
+    }
+    .start-title{
+      font-size:48px;
+      font-weight:700;
+      margin-bottom:20px;
+      text-shadow: 0 0 20px rgba(231,76,60,.8);
+    }
+    .start-subtitle{
+      font-size:20px;
+      margin-bottom:30px;
+      color:#95a5a6;
+    }
+    .start-btn{
+      padding:20px 50px;
+      font-size:24px;
+      font-weight:700;
+      border:none;
+      border-radius:15px;
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color:#fff;
+      cursor:pointer;
+      box-shadow: 0 8px 20px rgba(231,76,60,.4);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .start-btn:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(231,76,60,.6);
+    }
+    .start-btn:active{
+      transform: translateY(-1px);
+    }
+
+    /* Lives Display */
+    .lives-display{
+      position:absolute;
+      top:60px;
+      right:20px;
+      background: rgba(0,0,0,.7);
+      padding:10px 20px;
+      border-radius:10px;
+      color:#fff;
+      font-size:18px;
+      z-index:100;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .heart-life{
+      font-size:24px;
+      transition: opacity .3s;
+    }
+    .heart-life.lost{
+      opacity:0.2;
+    }
+
+    /* Score Display */
+    .score-display{
+      position:absolute;
+      top:60px;
+      left:20px;
+      background: rgba(0,0,0,.7);
+      padding:10px 20px;
+      border-radius:10px;
+      color:#fff;
+      font-size:18px;
+      z-index:100;
+      text-align:center;
+    }
+    .score-value{
+      font-size:32px;
+      font-weight:700;
+      color:#3aa0ff;
+      text-shadow: 0 0 10px rgba(58,160,255,.5);
+    }
+    .score-label{
+      font-size:14px;
+      color:#95a5a6;
+    }
+
     /* Game Area */
     .game-area{
       flex:1;
       position:relative;
-      background: linear-gradient(to bottom, var(--sky1) 0%, var(--sky2) 100%);
       overflow:hidden;
-      filter: brightness(calc(1 - var(--sceneDarken)));
-      transition: filter .3s ease;
+      transition: background 3s ease;
+    }
+    .game-area::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(to bottom, var(--sky1) 0%, var(--sky2) 100%);
+      z-index:0;
+      transition: opacity 3s ease;
+    }
+    .game-area::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(to bottom, var(--nightSky1) 0%, var(--nightSky2) 100%);
+      opacity: var(--skyMix);
+      z-index:1;
+      transition: opacity 3s ease;
+    }
+
+    /* Moon */
+    .moon{
+      position:absolute;
+      top:80px;
+      right:100px;
+      width:80px;
+      height:80px;
+      border-radius:50%;
+      background: radial-gradient(circle at 35% 35%, #fff, #e8e8e8);
+      box-shadow: 0 0 40px rgba(255,255,255,0.6), 0 0 80px rgba(255,255,255,0.3);
+      opacity: var(--skyMix);
+      transition: opacity 3s ease;
+      z-index:5;
+    }
+    /* Moon craters */
+    .moon::before{
+      content:"";
+      position:absolute;
+      top:20px;
+      left:15px;
+      width:15px;
+      height:15px;
+      border-radius:50%;
+      background: rgba(200,200,200,0.4);
+      box-shadow: 25px 10px 0 8px rgba(200,200,200,0.3),
+                  10px 30px 0 5px rgba(200,200,200,0.35);
     }
 
     /* ---------- SCENERY: seamless, two identical panels ---------- */
@@ -45,6 +188,7 @@
       position:absolute; inset:0;
       display:flex; width:200%; height:100%;
       pointer-events:none;
+      z-index:2;
     }
     .layer .panel{ position:relative; width:50%; height:100%; }
 
@@ -64,7 +208,7 @@
       animation: cloudFloat 6.5s ease-in-out infinite, cloudMorph 9s ease-in-out infinite;
       transform-origin: 50% 60%;
     }
-    /* Build the cloud with layered “puffs” and a soft rim */
+    /* Build the cloud with layered "puffs" and a soft rim */
     .cloud::before{
       content:""; position:absolute; inset:0; border-radius:40px;
       background:
@@ -165,6 +309,7 @@
       background: var(--road);
       overflow:hidden;
       animation-play-state: running;
+      z-index:2;
     }
     .road::before{
       content:""; position:absolute; left:0; right:0; top:50%; height:8px; transform:translateY(-50%);
@@ -175,7 +320,7 @@
     @keyframes dashScroll{ 0%{background-position-x:0} 100%{background-position-x:-120px} }
 
     /* ---------- Speed lines ---------- */
-    .speed-lines{position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .25s;}
+    .speed-lines{position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .25s; z-index:2;}
     .speed-line{
       position:absolute; left:0; right:0; height:2px;
       background:linear-gradient(to right,transparent,rgba(255,255,255,.85),transparent);
@@ -187,36 +332,47 @@
     .speed-line:nth-child(4){top:82%}
     @keyframes speedLine{ 0%{transform:translateX(100%)} 100%{transform:translateX(-100%)} }
 
-    /* ---------- Car (unchanged from your version) ---------- */
+    /* ---------- Car (Image-based) ---------- */
     .car{
       position:absolute; bottom:50px; left:50%; transform:translateX(-50%);
-      width:80px; height:40px; z-index:10;
-      transition:bottom .3s ease, transform .3s ease;
-      filter: drop-shadow(0 8px 14px rgba(0,0,0,.35));
+      /* CAR COLLISION BOX SIZE - This is what hits obstacles */
+      width:120px;      /* ← CHANGE THIS: Collision box width */
+      height:15px;      /* ← CHANGE THIS: Collision box height */
+      z-index:10;
+      transition:bottom .3s ease, left .3s ease;
+      /* DEBUG BORDER - Shows the collision box size */
+      /* border: 3px dashed red;  
+      background: rgba(255, 0, 0, 0.1);  */
+    }
+    .car-image{
+      /* CAR IMAGE SIZE - This is what you see visually */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 180px;     /* ← CHANGE THIS: Visual car width (can be bigger than container) */
+      height: 90px;     /* ← CHANGE THIS: Visual car height (can be bigger than container) */
+      object-fit: cover;
+      z-index: 1;
     }
     .car-body{
       position:relative; width:100%; height:100%;
-      background:#e74c3c; border-radius:10px;
-      box-shadow:0 5px 12px rgba(0,0,0,.35);
-    }
-    .car-body::before{
-      content:""; position:absolute; top:-15px; left:15px; width:50px; height:20px;
-      background:#c0392b; border-radius:5px 5px 0 0;
     }
 
     /* RIGHT-SIDE headlights beam (front is RIGHT) */
     .beams{
-      position:absolute; right: -50px; top:-3px;
+      position:absolute; right: -66px; top:-11px;
       width:56px; height:40px; pointer-events:none;
       background: radial-gradient(ellipse at right,
                 rgba(210,235,255,var(--beamOpacity)) 0%,
                 rgba(210,235,255,0) 75%);
       transform: translateX(20px) scaleX(2.0);
+      transition: background 3s ease;
     }
 
     /* Exhaust emitter at REAR (left side) */
     .exhaust{
-      position:absolute; left:-6px; bottom:4px; width:0; height:0; overflow:visible; pointer-events:none;
+      position:absolute; left:-6px; bottom:20px; width:0; height:0; overflow:visible; pointer-events:none;
     }
     .puff{
       position:absolute; width:10px; height:6px; border-radius:50%;
@@ -229,15 +385,17 @@
       100%{ transform: translateX(-42px) translateY(-6px) scale(1.6); opacity:0; }
     }
 
-    /* Wheels */
+    /* Wheels - positioned to match your car image wheels */
     .wheel{
-      position:absolute; bottom:-8px; width:22px; height:22px; border-radius:50%;
-      background:#0f0f0f; z-index:2;
+      position:absolute; bottom:-23.5px; width:28px; height:28px; border-radius:50%;
+      background:#0f0f0f; z-index:20; /* Higher z-index to appear above car */
       animation:wheelSpin .5s linear infinite;
       box-shadow: inset 0 0 6px rgba(255,255,255,.06), inset 0 -1px 4px rgba(0,0,0,.65);
     }
-    .wheel.front{ left:10px }
-    .wheel.rear { right:10px }
+    /* Position wheels to match the car image - ADJUSTED VALUES */
+    .wheel.front{ left:-10px; } /* Front wheel position - adjusted to match car */
+    .wheel.rear { right:-5px; } /* Rear wheel position - adjusted to match car */
+    
     .wheel .rim{
       position:absolute; inset:3px; border-radius:50%;
       background:
@@ -250,6 +408,37 @@
       filter: drop-shadow(0 0 1px rgba(0,0,0,.6));
     }
     @keyframes wheelSpin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
+    /* Car flash on hit */
+    @keyframes carHit{
+      0%,100%{ opacity:1; }
+      25%, 75%{ opacity:0.3; }
+      50%{ opacity:1; }
+    }
+
+    /* ---------- Obstacles (Destroyed Car Images) ---------- */
+    .obstacle{
+      position:absolute; bottom:50px; left:100%;
+      width:100px; height:40px; z-index:5;
+      animation: obstacleMove linear forwards;
+      /* DEBUG BORDER - Shows the collision box size */
+      /* border: 3px dashed blue;  
+      background: rgba(0, 0, 255, 0.1);  */
+    }
+    .obstacle-image{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;     /* ← CHANGE THIS: Visual car width (can be bigger than container) */
+      height: 90px;     /* ← CHANGE THIS: Visual car height (can be bigger than container) */
+      object-fit: cover;
+      z-index: 1;
+    }
+    @keyframes obstacleMove{
+      0%{ left: 100%; }
+      100%{ left: -180px; }
+    }
 
     /* ---------- UI ---------- */
     .control-panel{
@@ -282,7 +471,15 @@
     .control-btn:active{transform:translateY(0);}
 
     .toggle{
-      padding:10px 14px; border-radius:10px; border:0; cursor:pointer; color:#111; background:#e6f0ff; font-weight:700;
+      padding:10px 14px; border-radius:10px; border:0; cursor:pointer; color:#fff; background:#e74c3c; font-weight:700;
+      transition: transform .15s, background .15s;
+    }
+    .toggle:hover{
+      transform: translateY(-2px);
+      background: #c0392b;
+    }
+    .toggle:active{
+      transform: translateY(0);
     }
 
     .speed-display{color:#fff; text-align:center;}
@@ -303,9 +500,34 @@
   </style>
 </head>
 <body>
+  <!-- Start Screen -->
+  <div class="start-screen" id="startScreen">
+    <div class="start-content">
+      <div class="start-title">Heart Rate Racer</div>
+      <div class="start-subtitle" id="startSubtitle">Control your speed with your heart rate and Use the arrows to move the Car! </div>
+      <button class="start-btn" id="startBtn">Start</button>
+    </div>
+  </div>
+
   <div class="game-area">
     <div class="instructions">
-      <p> Adjust Heart Rate | Arrow Keys steer | Press <b>N</b> or click Night Mode</p>
+      <p> Adjust Heart Rate | Arrow Keys steer | Press <b>R</b> to Reset</p>
+    </div>
+
+    <!-- Moon -->
+    <div class="moon"></div>
+
+    <!-- Lives Display -->
+    <div class="lives-display">
+      <span>Lives:</span>
+      <span class="heart-life" id="life1">❤️</span>
+      <span class="heart-life" id="life2">❤️</span>
+    </div>
+
+    <!-- Score Display -->
+    <div class="score-display">
+      <div class="score-value" id="scoreDisplay">0</div>
+      <div class="score-label">POINTS</div>
     </div>
 
     <!-- Parallax layers -->
@@ -346,11 +568,14 @@
     <!-- Car -->
     <div class="car" id="car">
       <div class="car-body">
+        <!-- CAR IMAGE - Using your uploaded car image -->
+        <img src="Car.png" alt="Player Car" class="car-image" id="carImage">
         <!-- right-side forward beams -->
         <div class="beams"></div>
         <!-- rear exhaust -->
         <div class="exhaust" id="exhaust"></div>
       </div>
+      <!-- Animated wheels - adjusted to match your car's wheels -->
       <div class="wheel front"><div class="rim"></div></div>
       <div class="wheel rear"><div class="rim"></div></div>
     </div>
@@ -377,7 +602,7 @@
       <button class="control-btn" onclick="moveCar('down')">↓</button>
     </div>
 
-    <button class="toggle" id="nightBtn">Night Mode</button>
+    <button class="toggle" id="resetBtn">Reset Game</button>
 
     <div class="speed-display">
       <div class="speed-value" id="speedDisplay">0</div>
@@ -388,6 +613,10 @@
   <script>
     let heartRate = 60;
     let speed = 0;
+    let lives = 2;
+    let gameActive = false;
+    let invincible = false;
+    let score = 0;
 
     const car = document.getElementById('car');
     const heartSlider = document.getElementById('heartSlider');
@@ -396,8 +625,15 @@
     const speedLines = document.getElementById('speedLines');
     const wheels = document.querySelectorAll('.wheel');
     const heartIcon = document.querySelector('.heart-icon');
-    const nightBtn = document.getElementById('nightBtn');
+    const resetBtn = document.getElementById('resetBtn');
     const exhaust = document.getElementById('exhaust');
+    const gameArea = document.querySelector('.game-area');
+    const startScreen = document.getElementById('startScreen');
+    const startBtn = document.getElementById('startBtn');
+    const startSubtitle = document.getElementById('startSubtitle');
+    const life1 = document.getElementById('life1');
+    const life2 = document.getElementById('life2');
+    const scoreDisplay = document.getElementById('scoreDisplay');
 
     // layers we scale by speed
     const clouds = document.querySelector('.clouds');
@@ -405,21 +641,177 @@
     const road   = document.querySelector('.road');
 
     let night = false;
+    let obstacles = [];
+    let lastObstacleTime = 0;
+    let spawnInterval;
+    let collisionInterval;
+    let scoreInterval;
+    let nightDayInterval;
+
+    // Start button handler
+    startBtn.addEventListener('click', startGame);
+
+    function startGame(){
+      startScreen.classList.add('hidden');
+      gameActive = true;
+      lives = 2;
+      score = 0;
+      updateLivesDisplay();
+      updateScoreDisplay();
+      
+      // Reset car position
+      car.style.left = '50%';
+      car.style.bottom = '50px';
+      
+      // Clear any existing obstacles
+      obstacles.forEach(obs => obs.remove());
+      obstacles = [];
+      
+      // Start spawning obstacles
+      spawnInterval = setInterval(() => {
+        if (speed > 0 && gameActive) spawnObstacle();
+      }, 400);
+
+      // Start collision detection
+      collisionInterval = setInterval(checkCollisions, 50);
+
+      // Start score counter and day/night cycle with dynamic timing
+      startDynamicTimers();
+    }
+
+    function startDynamicTimers(){
+      // Clear existing timers if any
+      if (scoreInterval) clearInterval(scoreInterval);
+      if (nightDayInterval) clearInterval(nightDayInterval);
+
+      // Calculate interval based on heart rate
+      // 60 BPM (min active) = 15000ms, 180 BPM (max) = 3000ms
+      const intervalTime = Math.max(3000, 15000 - ((heartRate - 60) / (180 - 60)) * 12000);
+
+      // Start score counter (add 10 points every interval)
+      scoreInterval = setInterval(() => {
+        if (gameActive) {
+          score += 10;
+          updateScoreDisplay();
+        }
+      }, intervalTime);
+
+      // Start day/night cycle (toggle every interval)
+      nightDayInterval = setInterval(() => {
+        if (gameActive) {
+          toggleNight();
+        }
+      }, intervalTime);
+    }
+
+    function gameOver(){
+      gameActive = false;
+      clearInterval(spawnInterval);
+      clearInterval(collisionInterval);
+      clearInterval(scoreInterval);
+      clearInterval(nightDayInterval);
+      
+      // Clear obstacles
+      obstacles.forEach(obs => obs.remove());
+      obstacles = [];
+      
+      // Show start screen with "Try Again" and final score
+      startSubtitle.textContent = `Game Over! Final Score: ${score} points. Try Again?`;
+      startBtn.textContent = 'Try Again';
+      startScreen.classList.remove('hidden');
+      
+      // Reset button text after a moment
+      setTimeout(() => {
+        startBtn.textContent = 'Start';
+        startSubtitle.textContent = 'Control your speed with your heart rate!';
+      }, 5000);
+    }
+
+    function loseLife(){
+      if (invincible || !gameActive) return;
+      
+      lives--;
+      updateLivesDisplay();
+      
+      // Make car flash
+      car.style.animation = 'carHit 0.6s';
+      setTimeout(() => {
+        if (car.style.animation.includes('carShake')){
+          car.style.animation = 'carShake .1s infinite';
+        } else {
+          car.style.animation = 'none';
+        }
+      }, 600);
+      
+      // Temporary invincibility
+      invincible = true;
+      setTimeout(() => {
+        invincible = false;
+      }, 1500);
+      
+      if (lives <= 0){
+        gameOver();
+      }
+    }
+
+    function updateLivesDisplay(){
+      life1.classList.toggle('lost', lives < 2);
+      life2.classList.toggle('lost', lives < 1);
+    }
+
+    function updateScoreDisplay(){
+      scoreDisplay.textContent = score;
+    }
+
+    function checkCollisions(){
+      if (!gameActive || invincible) return;
+      
+      const carRect = car.getBoundingClientRect();
+      
+      obstacles.forEach(obstacle => {
+        const obsRect = obstacle.getBoundingClientRect();
+        
+        // Check if rectangles overlap
+        if (!(carRect.right < obsRect.left || 
+              carRect.left > obsRect.right || 
+              carRect.bottom < obsRect.top || 
+              carRect.top > obsRect.bottom)) {
+          // Collision detected!
+          loseLife();
+          obstacle.remove();
+          obstacles = obstacles.filter(o => o !== obstacle);
+        }
+      });
+    }
 
     function toggleNight(){
       night = !night;
       document.documentElement.style.setProperty('--beamOpacity', night ? 0.9 : 0);
       document.documentElement.style.setProperty('--sceneDarken', night ? 0.35 : 0);
-      nightBtn.textContent = night ? 'Day Mode' : 'Night Mode';
+      document.documentElement.style.setProperty('--skyMix', night ? 1 : 0);
     }
-    nightBtn.addEventListener('click', toggleNight);
+    
+    // Reset button handler
+    resetBtn.addEventListener('click', () => {
+      if (gameActive) {
+        gameOver();
+      }
+    });
+    
     document.addEventListener('keydown', e => {
-      if (e.key === 'n' || e.key === 'N') toggleNight();
+      if (e.key === 'r' || e.key === 'R') {
+        if (gameActive) gameOver();
+      }
     });
 
     heartSlider.addEventListener('input', (e) => {
       heartRate = parseInt(e.target.value, 10);
       updateHeartRate();
+      
+      // Update timers if game is active
+      if (gameActive) {
+        startDynamicTimers();
+      }
     });
 
     function updateHeartRate(){
@@ -485,14 +877,16 @@
     }
 
     function moveCar(direction){
+      if (!gameActive) return;
+      
       const currentLeft = parseInt((car.style.left || '50').replace('%',''), 10);
       const currentBottom = parseInt((car.style.bottom || '50').replace('px',''), 10);
 
       switch(direction){
-        case 'up':    car.style.bottom = Math.min(150, currentBottom + 20) + 'px'; break;
-        case 'down':  car.style.bottom = Math.max(30,  currentBottom - 20) + 'px'; break;
+        case 'up':    car.style.bottom = Math.min(190, currentBottom + 20) + 'px'; break;
+        case 'down':  car.style.bottom = Math.max(20,  currentBottom - 20) + 'px'; break;
         case 'left':  car.style.left   = Math.max(20,  currentLeft - 5)  + '%';    break;
-        case 'right': car.style.left   = Math.min(80,  currentLeft + 5)  + '%';    break;
+        case 'right': car.style.left   = Math.min(94,  currentLeft + 5)  + '%';    break;
       }
     }
 
@@ -505,6 +899,61 @@
 
     // Initialize
     updateHeartRate();
+
+    // === DESTROYED CAR IMAGES - REPLACE THESE URLS WITH YOUR ACTUAL IMAGES ===
+    const destroyedCarImages = [
+      'destroyed-car-1.png',  // ← Replace with your first destroyed car image
+      'destroyed-car-2.png',  // ← Replace with your second destroyed car image
+      'destroyed-car-3.png',  // ← Replace with your third destroyed car image
+      'destroyed-car-4.png'   // ← Replace with your fourth destroyed car image (optional)
+    ];
+
+    // Obstacle spawning and movement
+    function spawnObstacle(){
+      if (speed < 10 || !gameActive) return; // Only spawn when moving
+
+      const now = Date.now();
+      const spawnInterval = Math.max(800, 2500 - speed * 15); // Faster spawning at higher speeds
+      
+      if (now - lastObstacleTime < spawnInterval) return;
+      lastObstacleTime = now;
+
+      const obstacle = document.createElement('div');
+      obstacle.className = 'obstacle';
+      
+      // Create image element for obstacle
+      const obstacleImg = document.createElement('img');
+      obstacleImg.className = 'obstacle-image';
+      
+      // Randomly select one of the destroyed car images
+      const randomIndex = Math.floor(Math.random() * destroyedCarImages.length);
+      obstacleImg.src = destroyedCarImages[randomIndex];
+      obstacleImg.alt = 'Destroyed Car';
+      
+      obstacle.appendChild(obstacleImg);
+      
+      // Random lane position (matching where player can move)
+      const lanes = [10, 30, 50, 70, 90, 110, 130, 150]; // Different bottom positions
+      obstacle.style.bottom = lanes[Math.floor(Math.random() * lanes.length)] + 'px';
+      
+      gameArea.appendChild(obstacle);
+      obstacles.push(obstacle);
+
+      // Calculate duration to match road dash speed for consistency
+      // Use the same timing as the road dashes so obstacles feel stationary
+      const dashDur = Math.max(0.35, 1.3 / (speed/60 + 0.4)); // Same as road calculation
+      const duration = dashDur * 1000 * 10; // Convert to ms and scale for screen width
+      
+      obstacle.style.animationDuration = duration + 'ms';
+
+      // Remove after passing
+      setTimeout(() => {
+        if (obstacle.parentNode) {
+          obstacle.remove();
+          obstacles = obstacles.filter(o => o !== obstacle);
+        }
+      }, duration + 100);
+    }
   </script>
 </body>
 </html>
