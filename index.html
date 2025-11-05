@@ -416,6 +416,51 @@
       50%{ opacity:1; }
     }
 
+    /* Speech Bubble */
+    .speech-bubble{
+      position: absolute;
+      bottom: 100%; /* Position at the top of the car */
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px) scale(0); /* 10px gap above car */
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+      padding: 12px 18px;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      max-width: 220px;
+      text-align: center;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+                  opacity 0.3s ease;
+      opacity: 0;
+    }
+    .speech-bubble.show{
+      transform: translateX(-50%) translateY(-10px) scale(1);
+      opacity: 1;
+    }
+    /* Speech bubble tail */
+    .speech-bubble::after{
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 12px solid rgba(255, 255, 255, 0.95);
+    }
+    /* Pop-in animation */
+    @keyframes bubblePop{
+      0%{ transform: translateX(-50%) translateY(-10px) scale(0) rotate(-5deg); }
+      50%{ transform: translateX(-50%) translateY(-10px) scale(1.1) rotate(2deg); }
+      100%{ transform: translateX(-50%) translateY(-10px) scale(1) rotate(0deg); }
+    }
+
     /* ---------- Obstacles (Destroyed Car Images) ---------- */
     .obstacle{
       position:absolute; bottom:50px; left:100%;
@@ -578,6 +623,8 @@
       <!-- Animated wheels - adjusted to match your car's wheels -->
       <div class="wheel front"><div class="rim"></div></div>
       <div class="wheel rear"><div class="rim"></div></div>
+      <!-- Speech Bubble -->
+      <div class="speech-bubble" id="speechBubble"></div>
     </div>
   </div>
 
@@ -617,6 +664,7 @@
     let gameActive = false;
     let invincible = false;
     let score = 0;
+    let previousSpeed = 0;
 
     const car = document.getElementById('car');
     const heartSlider = document.getElementById('heartSlider');
@@ -634,6 +682,7 @@
     const life1 = document.getElementById('life1');
     const life2 = document.getElementById('life2');
     const scoreDisplay = document.getElementById('scoreDisplay');
+    const speechBubble = document.getElementById('speechBubble');
 
     // layers we scale by speed
     const clouds = document.querySelector('.clouds');
@@ -647,6 +696,90 @@
     let collisionInterval;
     let scoreInterval;
     let nightDayInterval;
+    let randomMessageInterval;
+    let bubbleTimeout;
+
+    // Car speech messages - FuelBorn escape narrative
+    const randomMessages = [
+      "Stay focused... FuelBorn could be anywhere",
+      "I can feel your heartbeat... we're connected",
+      "Those were cars like me once...",
+      "The burned ones... they can't speak anymore",
+      "Keep our bond strong... it's what keeps us alive",
+      "They want to silence all of us...",
+      "I won't let them take our connection",
+      "Every car on this road had a driver once",
+      "The Silence is spreading... we need to move",
+      "Trust me... I'll guide you through this",
+      "Our bond gives us power... use it",
+      "Stay calm... I can feel your fear",
+      "We're stronger together than apart",
+      "Don't look at them too long... keep moving"
+    ];
+
+    const speedUpMessages = [
+      "Careful! Don't burn through our energy!",
+      "Fast, but watch our connection!",
+      "Speed helps, but don't lose control!",
+      "Your heart's racing... I feel it too!",
+      "Quick! But stay with me!",
+      "Watch out ahead!",
+      "Too fast and we'll break our bond!"
+    ];
+
+    const slowDownMessages = [
+      "Rest... we need to conserve energy",
+      "Breathe... I'm here with you",
+      "Take it easy... we'll survive this",
+      "Slow is safe... steady your heart",
+      "We can rest for a moment...",
+      "Let our bond recharge..."
+    ];
+
+    const nightMessages = [
+      "Darkness... when FuelBorn strikes",
+      "Night... they hide in the shadows",
+      "Stay alert... The Silence loves the dark",
+      "I'll light the way... trust me"
+    ];
+
+    const dayMessages = [
+      "Daylight... we're safer now",
+      "Light returns... we made it",
+      "The sun... I can feel it too",
+      "Another day survived together"
+    ];
+
+    // Speech bubble functions
+    function showSpeechBubble(message, duration = 3000) {
+      // Clear any existing timeout
+      if (bubbleTimeout) {
+        clearTimeout(bubbleTimeout);
+      }
+
+      // Just set the message - CSS handles positioning automatically
+      speechBubble.textContent = message;
+      
+      // Show bubble
+      speechBubble.classList.add('show');
+      speechBubble.style.animation = 'bubblePop 0.3s ease-out';
+
+      // Hide after duration
+      bubbleTimeout = setTimeout(() => {
+        speechBubble.classList.remove('show');
+      }, duration);
+    }
+
+    function updateBubblePosition() {
+      // No longer needed - bubble follows car automatically via CSS
+      // Keeping function for compatibility
+    }
+
+    function showRandomMessage() {
+      if (!gameActive) return;
+      const message = randomMessages[Math.floor(Math.random() * randomMessages.length)];
+      showSpeechBubble(message);
+    }
 
     // Start button handler
     startBtn.addEventListener('click', startGame);
@@ -656,6 +789,7 @@
       gameActive = true;
       lives = 2;
       score = 0;
+      previousSpeed = speed;
       updateLivesDisplay();
       updateScoreDisplay();
       
@@ -667,6 +801,16 @@
       obstacles.forEach(obs => obs.remove());
       obstacles = [];
       
+      // Welcome messages - randomly select one
+      const startMessages = [
+        "Those burned cars... FuelBorn's work. Dodge them!",
+        "We have to survive this together... avoid the wrecks!",
+        "Every burned car was alive once... don't join them!",
+        "FuelBorn wants to silence us... keep moving!",
+        "Stay connected to me... it's how we stay alive!"
+      ];
+      showSpeechBubble(startMessages[Math.floor(Math.random() * startMessages.length)], 3000);
+      
       // Start spawning obstacles
       spawnInterval = setInterval(() => {
         if (speed > 0 && gameActive) spawnObstacle();
@@ -677,6 +821,9 @@
 
       // Start score counter and day/night cycle with dynamic timing
       startDynamicTimers();
+
+      // Start random messages every 10 seconds
+      randomMessageInterval = setInterval(showRandomMessage, 10000);
     }
 
     function startDynamicTimers(){
@@ -710,10 +857,15 @@
       clearInterval(collisionInterval);
       clearInterval(scoreInterval);
       clearInterval(nightDayInterval);
+      clearInterval(randomMessageInterval);
+      if (bubbleTimeout) clearTimeout(bubbleTimeout);
       
       // Clear obstacles
       obstacles.forEach(obs => obs.remove());
       obstacles = [];
+      
+      // Hide speech bubble
+      speechBubble.classList.remove('show');
       
       // Show start screen with "Try Again" and final score
       startSubtitle.textContent = `Game Over! Final Score: ${score} points. Try Again?`;
@@ -732,6 +884,21 @@
       
       lives--;
       updateLivesDisplay();
+      
+      // Show different messages based on lives remaining
+      const hitMessages = [
+        "We share two lives... now only one remains!",
+        "That hurt us both... our bond is fragile!",
+        "One life left... we have to be more careful!"
+      ];
+      
+      if (lives === 1) {
+        showSpeechBubble(hitMessages[0], 2500);
+      } else if (lives === 0) {
+        showSpeechBubble("Our connection... it's fading...", 2000);
+      } else {
+        showSpeechBubble(hitMessages[Math.floor(Math.random() * hitMessages.length)], 2000);
+      }
       
       // Make car flash
       car.style.animation = 'carHit 0.6s';
@@ -789,6 +956,14 @@
       document.documentElement.style.setProperty('--beamOpacity', night ? 0.9 : 0);
       document.documentElement.style.setProperty('--sceneDarken', night ? 0.35 : 0);
       document.documentElement.style.setProperty('--skyMix', night ? 1 : 0);
+      
+      // Show day/night message
+      if (gameActive) {
+        const message = night ? 
+          nightMessages[Math.floor(Math.random() * nightMessages.length)] :
+          dayMessages[Math.floor(Math.random() * dayMessages.length)];
+        showSpeechBubble(message, 2500);
+      }
     }
     
     // Reset button handler
@@ -818,7 +993,23 @@
       heartRateDisplay.textContent = heartRate;
 
       // Map 40..180 BPM to 0..140 MPH
-      speed = Math.max(0, Math.round(((heartRate - 40) / 140) * 140));
+      const newSpeed = Math.max(0, Math.round(((heartRate - 40) / 140) * 140));
+      
+      // Check for speed changes and show messages
+      if (gameActive) {
+        if (newSpeed > previousSpeed + 20) {
+          // Speeding up significantly
+          const message = speedUpMessages[Math.floor(Math.random() * speedUpMessages.length)];
+          showSpeechBubble(message, 2000);
+        } else if (newSpeed < previousSpeed - 20) {
+          // Slowing down significantly
+          const message = slowDownMessages[Math.floor(Math.random() * slowDownMessages.length)];
+          showSpeechBubble(message, 2000);
+        }
+      }
+      
+      previousSpeed = newSpeed;
+      speed = newSpeed;
       speedDisplay.textContent = speed;
 
       // Scale parallax and dashes by speed
