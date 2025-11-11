@@ -20,6 +20,9 @@
 
       /* Road dash duration (will be updated by JS) */
       --dashDur: 1.3s;
+
+      /* Car color filter */
+      --car-filter: none;
     }
 
     *{margin:0;padding:0;box-sizing:border-box;}
@@ -54,6 +57,8 @@
     .start-content{
       text-align:center;
       color:#fff;
+      max-width: 600px;
+      padding: 20px;
     }
     .start-title{
       font-size:48px;
@@ -66,6 +71,74 @@
       margin-bottom:30px;
       color:#95a5a6;
     }
+
+    /* Car Color Picker Section */
+    .color-picker-section{
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+    }
+    .color-picker-title{
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #fff;
+      font-weight: 600;
+    }
+    .color-options{
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .color-option{
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .color-option:hover{
+      transform: scale(1.1);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
+    .color-option.selected{
+      border-color: #fff;
+      box-shadow: 0 0 20px rgba(255,255,255,0.6);
+      transform: scale(1.15);
+    }
+    .color-option::after{
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .color-option.selected::after{
+      opacity: 1;
+    }
+
+    /* Individual color backgrounds */
+    .color-red{ background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); }
+    .color-blue{ background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); }
+    .color-green{ background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
+    .color-yellow{ background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); }
+    .color-purple{ background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
+    .color-orange{ background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); }
+    .color-pink{ background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%); }
+    .color-white{ background: linear-gradient(135deg, #ecf0f1 0%, #bdc3c7 100%); }
+    .color-black{ background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%); }
+    .color-silver{ background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); }
+
     .start-btn{
       padding:20px 50px;
       font-size:24px;
@@ -358,6 +431,9 @@
       height: 90px;     /* ← CHANGE THIS: Visual car height (can be bigger than container) */
       object-fit: cover;
       z-index: 1;
+      /* Apply color filter */
+      filter: var(--car-filter);
+      transition: filter 0.3s ease;
     }
     .car-body{
       position:relative; width:100%; height:100%;
@@ -994,6 +1070,23 @@
         padding: 15px 40px;
         font-size: 20px;
       }
+
+      /* Adjust color picker for mobile */
+      .color-picker-section{
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+      .color-picker-title{
+        font-size: 16px;
+        margin-bottom: 12px;
+      }
+      .color-options{
+        gap: 10px;
+      }
+      .color-option{
+        width: 50px;
+        height: 50px;
+      }
     }
 
     /* Extra small phones */
@@ -1060,6 +1153,12 @@
       .start-subtitle{
         font-size: 14px;
       }
+
+      /* Smaller color options on tiny screens */
+      .color-option{
+        width: 45px;
+        height: 45px;
+      }
     }
   </style>
 </head>
@@ -1069,6 +1168,21 @@
     <div class="start-content">
       <div class="start-title">Heart Rate Racer</div>
       <div class="start-subtitle" id="startSubtitle">Control your speed with your heart rate and Use the arrows to move the Car! </div>
+      
+      <!-- Car Color Picker -->
+      <div class="color-picker-section">
+        <div class="color-picker-title">Choose Your Car Color</div>
+        <div class="color-options">
+          <div class="color-option color-black selected" data-color="black" data-filter="none"></div>
+          <div class="color-option color-red" data-color="red" data-filter="brightness(0.8) sepia(1) saturate(10) hue-rotate(330deg) contrast(1.2)"></div>
+          <div class="color-option color-blue" data-color="blue" data-filter="brightness(1.3) sepia(1) saturate(3) hue-rotate(180deg)"></div>
+          <div class="color-option color-green" data-color="green" data-filter="brightness(1.3) sepia(1) saturate(3) hue-rotate(80deg)"></div>
+          <div class="color-option color-purple" data-color="purple" data-filter="brightness(1.2) sepia(1) saturate(3) hue-rotate(260deg)"></div>
+          <div class="color-option color-orange" data-color="orange" data-filter="brightness(1.1) sepia(1) saturate(6) hue-rotate(0deg)"></div>
+          <div class="color-option color-white" data-color="white" data-filter="brightness(2) grayscale(0.3)"></div>
+        </div>
+      </div>
+      
       <button class="start-btn" id="startBtn">Start</button>
     </div>
   </div>
@@ -1226,6 +1340,8 @@
     let previousSpeed = 0;
     let papersCollected = 0;
     let collectedPaperIds = [];
+    let selectedCarColor = 'black';
+    let selectedCarFilter = 'none';
 
     // Story documents - Add your own story here!
     const storyDocuments = [
@@ -1269,6 +1385,28 @@
     const storyTitle = document.getElementById('storyTitle');
     const storyText = document.getElementById('storyText');
     const continueBtn = document.getElementById('continueBtn');
+    const carImage = document.getElementById('carImage');
+
+    // Color picker elements
+    const colorOptions = document.querySelectorAll('.color-option');
+
+    // Color picker event listeners
+    colorOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        // Remove selected class from all options
+        colorOptions.forEach(opt => opt.classList.remove('selected'));
+        
+        // Add selected class to clicked option
+        this.classList.add('selected');
+        
+        // Get color and filter data
+        selectedCarColor = this.dataset.color;
+        selectedCarFilter = this.dataset.filter;
+        
+        // Apply filter to car image
+        document.documentElement.style.setProperty('--car-filter', selectedCarFilter);
+      });
+    });
 
     // layers we scale by speed
     const clouds = document.querySelector('.clouds');
