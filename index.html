@@ -159,6 +159,194 @@
       transform: translateY(-1px);
     }
 
+    /* ========== FIRE ANIMATION ON DEATH ========== */
+    .fire-overlay{
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .fire-overlay.active{
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* Fire particles container */
+    .fire-particles{
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    /* Individual flame particle */
+    .flame{
+      position: absolute;
+      bottom: -50px;
+      width: 40px;
+      height: 80px;
+      background: linear-gradient(to top, 
+        #ff4500 0%, 
+        #ff6b00 30%, 
+        #ff8c00 50%, 
+        #ffa500 70%, 
+        rgba(255, 200, 0, 0.8) 85%,
+        transparent 100%);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      filter: blur(2px);
+      animation: flameRise 2s ease-out forwards, flameFlicker 0.1s infinite;
+      box-shadow: 0 0 20px #ff4500, 0 0 40px #ff6b00;
+    }
+
+    /* Different flame sizes */
+    .flame.small{
+      width: 25px;
+      height: 50px;
+      animation-duration: 1.5s;
+    }
+    .flame.large{
+      width: 60px;
+      height: 120px;
+      animation-duration: 2.5s;
+    }
+
+    @keyframes flameRise{
+      0%{
+        bottom: -50px;
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+      50%{
+        transform: translateX(var(--sway, 0px)) scale(1.2);
+        opacity: 0.9;
+      }
+      100%{
+        bottom: 110vh;
+        transform: translateX(var(--sway, 0px)) scale(0.5);
+        opacity: 0;
+      }
+    }
+
+    @keyframes flameFlicker{
+      0%, 100%{
+        filter: blur(2px) brightness(1);
+      }
+      50%{
+        filter: blur(3px) brightness(1.2);
+      }
+    }
+
+    /* Burning edges effect */
+    .burn-edge{
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(ellipse at bottom, 
+          rgba(255, 69, 0, 0.4) 0%,
+          rgba(255, 107, 0, 0.2) 20%,
+          transparent 40%);
+      animation: burnSpread 2s ease-out forwards;
+    }
+
+    @keyframes burnSpread{
+      0%{
+        clip-path: inset(100% 0 0 0);
+      }
+      100%{
+        clip-path: inset(0 0 0 0);
+      }
+    }
+
+    /* Heat distortion effect */
+    .heat-distortion{
+      position: absolute;
+      inset: 0;
+      background: 
+        repeating-linear-gradient(
+          0deg,
+          transparent 0px,
+          rgba(255, 100, 0, 0.05) 2px,
+          transparent 4px
+        );
+      animation: heatWave 0.3s linear infinite;
+      opacity: 0;
+      animation: heatWave 0.3s linear infinite, heatFadeIn 1s ease-out forwards;
+    }
+
+    @keyframes heatWave{
+      0%{
+        transform: translateY(0) scaleY(1);
+      }
+      100%{
+        transform: translateY(-10px) scaleY(1.02);
+      }
+    }
+
+    @keyframes heatFadeIn{
+      0%{
+        opacity: 0;
+      }
+      100%{
+        opacity: 0.6;
+      }
+    }
+
+    /* Screen flash */
+    .fire-flash{
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center,
+        rgba(255, 69, 0, 0.8) 0%,
+        rgba(255, 107, 0, 0.4) 30%,
+        transparent 60%);
+      animation: fireFlash 0.5s ease-out forwards;
+    }
+
+    @keyframes fireFlash{
+      0%{
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      30%{
+        opacity: 1;
+        transform: scale(1.2);
+      }
+      100%{
+        opacity: 0;
+        transform: scale(2);
+      }
+    }
+
+    /* Smoke effect */
+    .smoke{
+      position: absolute;
+      bottom: 0;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, 
+        rgba(50, 50, 50, 0.6) 0%,
+        rgba(80, 80, 80, 0.3) 40%,
+        transparent 70%);
+      border-radius: 50%;
+      filter: blur(15px);
+      animation: smokeRise 3s ease-out forwards;
+    }
+
+    @keyframes smokeRise{
+      0%{
+        bottom: 0;
+        transform: translateX(0) scale(1);
+        opacity: 0.8;
+      }
+      100%{
+        bottom: 100vh;
+        transform: translateX(var(--drift, 0px)) scale(3);
+        opacity: 0;
+      }
+    }
+
     /* Lives Display */
     .lives-display{
       position:absolute;
@@ -1163,6 +1351,14 @@
   </style>
 </head>
 <body>
+  <!-- Fire Overlay for Death Animation -->
+  <div class="fire-overlay" id="fireOverlay">
+    <div class="fire-flash"></div>
+    <div class="burn-edge"></div>
+    <div class="heat-distortion"></div>
+    <div class="fire-particles" id="fireParticles"></div>
+  </div>
+
   <!-- Start Screen -->
   <div class="start-screen" id="startScreen">
     <div class="start-content">
@@ -1386,6 +1582,8 @@
     const storyText = document.getElementById('storyText');
     const continueBtn = document.getElementById('continueBtn');
     const carImage = document.getElementById('carImage');
+    const fireOverlay = document.getElementById('fireOverlay');
+    const fireParticles = document.getElementById('fireParticles');
 
     // Color picker elements
     const colorOptions = document.querySelectorAll('.color-option');
@@ -1407,6 +1605,109 @@
         document.documentElement.style.setProperty('--car-filter', selectedCarFilter);
       });
     });
+
+    // Fire animation function
+    function triggerFireAnimation() {
+      // Show fire overlay
+      fireOverlay.classList.add('active');
+      
+      // Clear previous flames and smoke
+      fireParticles.innerHTML = '';
+      
+      // Create initial flash element
+      const flash = document.createElement('div');
+      flash.className = 'fire-flash';
+      fireParticles.appendChild(flash);
+      
+      // Create burn edge effect
+      const burnEdge = document.createElement('div');
+      burnEdge.className = 'burn-edge';
+      fireParticles.appendChild(burnEdge);
+      
+      // Create heat distortion
+      const heat = document.createElement('div');
+      heat.className = 'heat-distortion';
+      fireParticles.appendChild(heat);
+      
+      // Spawn flames from bottom
+      const flameCount = 40; // Number of flames
+      for (let i = 0; i < flameCount; i++) {
+        setTimeout(() => {
+          createFlame();
+        }, i * 50); // Stagger flame creation
+      }
+      
+      // Spawn smoke
+      const smokeCount = 20;
+      for (let i = 0; i < smokeCount; i++) {
+        setTimeout(() => {
+          createSmoke();
+        }, i * 100 + 500); // Start smoke after flames begin
+      }
+      
+      // Remove fire overlay after animation completes
+      setTimeout(() => {
+        fireOverlay.classList.remove('active');
+        fireParticles.innerHTML = '';
+      }, 2500); // Match with animation duration
+    }
+
+    function createFlame() {
+      const flame = document.createElement('div');
+      flame.className = 'flame';
+      
+      // Random size
+      const sizeClass = Math.random() > 0.7 ? 'large' : (Math.random() > 0.5 ? '' : 'small');
+      if (sizeClass) flame.classList.add(sizeClass);
+      
+      // Random horizontal position
+      const leftPos = Math.random() * 100;
+      flame.style.left = leftPos + '%';
+      
+      // Random sway amount
+      const sway = (Math.random() - 0.5) * 80;
+      flame.style.setProperty('--sway', sway + 'px');
+      
+      // Random delay
+      const delay = Math.random() * 0.3;
+      flame.style.animationDelay = delay + 's';
+      
+      fireParticles.appendChild(flame);
+      
+      // Remove after animation
+      setTimeout(() => {
+        flame.remove();
+      }, 2500 + delay * 1000);
+    }
+
+    function createSmoke() {
+      const smoke = document.createElement('div');
+      smoke.className = 'smoke';
+      
+      // Random horizontal position
+      const leftPos = Math.random() * 100;
+      smoke.style.left = leftPos + '%';
+      
+      // Random drift
+      const drift = (Math.random() - 0.5) * 150;
+      smoke.style.setProperty('--drift', drift + 'px');
+      
+      // Random delay
+      const delay = Math.random() * 0.5;
+      smoke.style.animationDelay = delay + 's';
+      
+      // Random size
+      const size = 80 + Math.random() * 60;
+      smoke.style.width = size + 'px';
+      smoke.style.height = size + 'px';
+      
+      fireParticles.appendChild(smoke);
+      
+      // Remove after animation
+      setTimeout(() => {
+        smoke.remove();
+      }, 3000 + delay * 1000);
+    }
 
     // layers we scale by speed
     const clouds = document.querySelector('.clouds');
@@ -1594,6 +1895,9 @@
       clearInterval(randomMessageInterval);
       if (bubbleTimeout) clearTimeout(bubbleTimeout);
       
+      // TRIGGER FIRE ANIMATION
+      triggerFireAnimation();
+      
       // Clear obstacles and papers
       obstacles.forEach(obs => obs.remove());
       obstacles = [];
@@ -1611,16 +1915,18 @@
       // Hide speech bubble
       speechBubble.classList.remove('show');
       
-      // Show start screen with "Try Again" and final score
-      startSubtitle.textContent = `Game Over! Final Score: ${score} points. Try Again?`;
-      startBtn.textContent = 'Try Again';
-      startScreen.classList.remove('hidden');
+      // Show start screen with "Try Again" and final score AFTER fire animation
+      setTimeout(() => {
+        startSubtitle.textContent = `Game Over! Final Score: ${score} points. Try Again?`;
+        startBtn.textContent = 'Try Again';
+        startScreen.classList.remove('hidden');
+      }, 2500); // Wait for fire animation to complete
       
       // Reset button text after a moment
       setTimeout(() => {
         startBtn.textContent = 'Start';
         startSubtitle.textContent = 'Control your speed with your heart rate!';
-      }, 5000);
+      }, 7500); // 2500 + 5000
     }
 
     function loseLife(){
